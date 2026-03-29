@@ -29,20 +29,25 @@ def get_available_provider() -> str | None:
 
 
 def embed_text(text: str, *, provider: str | None = None) -> EmbeddingResult | None:
-    """Embed a text string using the specified provider."""
+    """Embed a text string, falling back through providers on failure."""
     if provider is None:
         return None
 
+    # Build the fallback chain starting from the requested provider
+    chain = []
     if provider == "voyage":
-        vector = _embed_voyage(text)
+        chain = [("voyage", _embed_voyage), ("huggingface", _embed_huggingface)]
     elif provider == "huggingface":
-        vector = _embed_huggingface(text)
+        chain = [("huggingface", _embed_huggingface)]
     else:
         return None
 
-    if vector is None:
-        return None
-    return EmbeddingResult(vector=vector, provider=provider)
+    for name, fn in chain:
+        vector = fn(text)
+        if vector is not None:
+            return EmbeddingResult(vector=vector, provider=name)
+
+    return None
 
 
 def _embed_voyage(text: str) -> list[float] | None:
