@@ -14,23 +14,28 @@ class EmbeddingResult:
     provider: str  # "voyage" | "huggingface"
 
 
-def _ssl_verify() -> bool | str:
-    """Return SSL verification setting for requests.
+_ssl_verify_cache: bool | None = None
 
-    Returns False if corporate proxy certs cause issues (Zscaler etc.),
-    otherwise returns True for normal SSL verification.
-    """
+
+def _ssl_verify() -> bool:
+    """Return SSL verification setting for requests. Result is cached."""
+    global _ssl_verify_cache
+    if _ssl_verify_cache is not None:
+        return _ssl_verify_cache
+
     # Allow explicit override
     if os.environ.get("FM_SSL_VERIFY", "").lower() in ("0", "false", "no"):
+        _ssl_verify_cache = False
         return False
     # Auto-detect: try a quick TLS handshake with default verification
     try:
         requests.head("https://api.voyageai.com", timeout=2)
-        return True
+        _ssl_verify_cache = True
     except requests.exceptions.SSLError:
-        return False
+        _ssl_verify_cache = False
     except requests.RequestException:
-        return True  # Non-SSL error, verification itself is fine
+        _ssl_verify_cache = True  # Non-SSL error, verification itself is fine
+    return _ssl_verify_cache
 
 
 def get_available_provider() -> str | None:
@@ -92,7 +97,9 @@ def _embed_voyage(text: str) -> list[float] | None:
         resp.raise_for_status()
         data = resp.json()
         return data["data"][0]["embedding"]
-    except Exception:
+    except Exception as e:
+        import sys
+        print(f"Voyage embed error: {type(e).__name__}: {e}", file=sys.stderr)
         return None
 
 
