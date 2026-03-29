@@ -63,9 +63,8 @@ def extract_tips_from_session(
         result = subprocess.run(
             [
                 "claude",
-                "--print",
+                "-p", prompt,
                 "--model", model,
-                "--prompt", prompt,
             ],
             capture_output=True,
             text=True,
