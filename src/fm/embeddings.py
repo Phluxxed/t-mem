@@ -84,7 +84,7 @@ def _embed_voyage(text: str) -> list[float] | None:
             warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
             resp = requests.post(
                 "https://api.voyageai.com/v1/embeddings",
-                json={"input": [text], "model": "voyage-3-lite"},
+                json={"input": [text], "model": "voyage-4-lite"},
                 headers={"Authorization": f"Bearer {api_key}"},
                 verify=verify,
                 timeout=15,
