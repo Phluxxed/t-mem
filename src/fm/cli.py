@@ -131,9 +131,18 @@ def extract_all(db: Path, model: str) -> None:
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
 @click.option("--threshold", default=0.6, help="Cosine similarity threshold.")
 @click.option("--top-k", default=5, help="Max tips to return.")
-def retrieve(query: str, db: Path, threshold: float, top_k: int) -> None:
+@click.option("--verbose", "-v", is_flag=True, help="Show debug info.")
+def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) -> None:
     """Retrieve relevant tips for a task description."""
     store = TipStore(db)
+    if verbose:
+        from fm.embeddings import get_available_provider, embed_text as _et
+        provider = get_available_provider()
+        click.echo(f"Provider: {provider}", err=True)
+        result = _et(query, provider=provider)
+        click.echo(f"Query embedded: {result is not None}", err=True)
+        stored = store.get_tips_with_embeddings(provider=provider or "voyage")
+        click.echo(f"Stored tips with provider '{provider}': {len(stored)}", err=True)
     tips = retrieve_tips(query, store, threshold=threshold, top_k=top_k)
     output = format_tips(tips)
     if output:
