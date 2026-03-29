@@ -207,4 +207,36 @@ def tips_show(tip_id: str, db: Path) -> None:
     click.echo(f"Created: {tip.created_at}")
 
 
+@tips.command("embed")
+@click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
+def tips_embed(db: Path) -> None:
+    """Backfill embeddings for tips that are missing them."""
+    store = TipStore(db)
+    all_tips = store.list_tips()
+    provider = get_available_provider()
+    if not provider:
+        click.echo("No embedding provider available. Set VOYAGE_API_KEY or check network.")
+        return
+
+    updated = 0
+    for tip in all_tips:
+        raw = store.get_tip_with_embedding(tip.id)
+        if raw and raw.get("embedding"):
+            continue
+        embedding_result = embed_text(f"{tip.content} {tip.trigger}", provider=provider)
+        if embedding_result:
+            store._conn.execute(
+                "UPDATE tips SET embedding = ?, embedding_provider = ? WHERE id = ?",
+                (
+                    __import__("struct").pack(f"{len(embedding_result.vector)}f", *embedding_result.vector),
+                    embedding_result.provider,
+                    tip.id,
+                ),
+            )
+            store._conn.commit()
+            updated += 1
+
+    click.echo(f"Embedded {updated} tips using {provider}.")
+
+
 main.add_command(tips)
