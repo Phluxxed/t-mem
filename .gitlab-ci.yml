@@ -1,0 +1,29 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Secret-Detection.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+
+stages:
+  - lint
+  - test
+
+doc-gardening:
+  stage: lint
+  image: gitlab.corp.tlclimited.com:5005/tlc/shared/pipeline-images/tlc_buildtools/tlc_buildtools:v1.26.0
+  script:
+    - python scripts/ci/check_docs.py
+
+source-checks:
+  stage: lint
+  image: gitlab.corp.tlclimited.com:5005/tlc/shared/pipeline-images/tlc_buildtools/tlc_buildtools:v1.26.0
+  script:
+    - python scripts/ci/check_file_size.py
+    - python scripts/ci/check_no_print.py
+
+# No stack detected. Add language-specific lint/test stages here.
+# See docs/plans/2026-03-03-ci-setup-design.md for guidance.
