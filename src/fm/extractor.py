@@ -63,9 +63,10 @@ def extract_tips_from_session(
         result = subprocess.run(
             [
                 "claude",
-                "-p", prompt,
+                "--print",
                 "--model", model,
             ],
+            input=prompt,
             capture_output=True,
             text=True,
             timeout=120,
@@ -78,6 +79,12 @@ def extract_tips_from_session(
             f"Warning: claude CLI returned {result.returncode}: {result.stderr}",
             file=sys.stderr,
         )
+        return []
+
+    if not result.stdout.strip():
+        print("Warning: claude CLI returned empty output", file=sys.stderr)
+        if result.stderr:
+            print(f"  stderr: {result.stderr[:500]}", file=sys.stderr)
         return []
 
     return _parse_tips_json(result.stdout, session_id, project)
