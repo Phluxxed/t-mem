@@ -233,6 +233,9 @@ What we're deliberately skipping relative to the paper, and why it matters:
 ### Phase 2: Baseline Metrics & Evaluation
 `fm baseline` command that analyses existing session logs and produces a "before" snapshot: error rates (failed tool calls), recovery patterns (error → retry → success), efficiency metrics (tool calls per turn, repeated operations), and session length. Running this before and after tip injection gives a measurable delta. Critical for demonstrating value to other users.
 
+### Phase 2b: Incremental Session Re-extraction
+Currently `extract-all` skips sessions that have already been processed, even if the session has continued and grown significantly. Track `last_processed_size` (or line count) alongside the session ID and re-extract sessions that have grown beyond a threshold since last processing. Ensures tips from ongoing sessions aren't lost.
+
 ### Phase 3: Subtask-Level Extraction (Paper §3.1.4)
 The paper's two-phase pipeline segments trajectories into logical subtasks (authentication, data retrieval, processing, etc.) and extracts tips per-subtask. This enables cross-task transfer — an auth tip from a Spotify task helps with a Venmo task. Our task-level tips won't transfer as well across dissimilar tasks that share subtask patterns.
 
