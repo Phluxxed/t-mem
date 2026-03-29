@@ -129,7 +129,7 @@ def extract_all(db: Path, model: str) -> None:
 @main.command()
 @click.argument("query")
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
-@click.option("--threshold", default=0.6, help="Cosine similarity threshold.")
+@click.option("--threshold", default=0.35, help="Cosine similarity threshold.")
 @click.option("--top-k", default=5, help="Max tips to return.")
 @click.option("--verbose", "-v", is_flag=True, help="Show debug info.")
 def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) -> None:
@@ -160,7 +160,7 @@ def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) 
 
 @main.command("hook-retrieve")
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
-@click.option("--threshold", default=0.6)
+@click.option("--threshold", default=0.35)
 @click.option("--top-k", default=5)
 def hook_retrieve(db: Path, threshold: float, top_k: int) -> None:
     """Hook entrypoint: reads JSON from stdin, outputs tips to stdout."""

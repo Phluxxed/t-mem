@@ -23,7 +23,7 @@ def retrieve_tips(
     query: str,
     store: TipStore,
     *,
-    threshold: float = 0.6,
+    threshold: float = 0.35,
     top_k: int = 5,
     provider: str | None = None,
 ) -> list[Tip]:
