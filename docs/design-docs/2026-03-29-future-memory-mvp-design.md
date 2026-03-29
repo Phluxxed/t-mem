@@ -249,7 +249,14 @@ Without this, our tip store will grow linearly and accumulate near-duplicates ov
 ### Phase 4: LLM-Guided Retrieval (Paper §3.3.2)
 Uses an LLM at retrieval time to reason about task context, detect application domain, prioritise tip categories, and construct metadata-filtered queries. The paper shows this drives +7.2pp SGC over cosine-only retrieval. More expensive (extra LLM call per prompt) but significantly better at cross-variant consistency.
 
-### Phase 5: Additional Hook Points
+### Phase 5: Extraction Pipeline Performance
+Current extraction is sequential — one session at a time, each calling the `claude` CLI synchronously. With 1,800+ sessions this takes hours. Improvements:
+- **Parallel extraction**: Run multiple `claude` CLI calls concurrently (e.g. 3-5 in parallel via asyncio subprocess or a simple process pool)
+- **Use Haiku for bulk extraction**: Cheaper and faster for straightforward sessions, reserve Sonnet for complex ones
+- **Skip trivial sessions**: Pre-filter sessions with < N turns or < N tool calls before calling the LLM — many sessions are just a single question/answer with nothing to learn from
+- **Direct API access**: When available, batch API calls are significantly faster than sequential CLI invocations
+
+### Phase 6: Additional Hook Points
 - **Compact events**: Re-inject critical tips that got compacted away
 - **Tool call hooks**: Inject tips relevant to specific tools being used
 - **Session start**: Inject high-priority tips for the current project
