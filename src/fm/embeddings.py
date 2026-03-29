@@ -74,29 +74,24 @@ def embed_text(text: str, *, provider: str | None = None) -> EmbeddingResult | N
 
 
 def _embed_voyage(text: str) -> list[float] | None:
-    """Embed text using Voyage AI API."""
+    """Embed text using Voyage AI API directly via requests."""
     api_key = os.environ.get("VOYAGE_API_KEY")
     if not api_key:
         return None
     try:
-        import voyageai
-
         verify = _ssl_verify()
-        if not verify:
-            # voyageai uses requests.Session internally — patch it to skip SSL
-            voyageai.verify_ssl_certs = False
-            original_make_session = voyageai.api_resources.api_requestor._make_session
-            def _patched_session() -> requests.Session:
-                s = original_make_session()
-                s.verify = False
-                return s
-            voyageai.api_resources.api_requestor._make_session = _patched_session
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
-            client = voyageai.Client(api_key=api_key)
-            result = client.embed([text], model="voyage-3-lite")
-        return result.embeddings[0]
+            resp = requests.post(
+                "https://api.voyageai.com/v1/embeddings",
+                json={"input": [text], "model": "voyage-3-lite"},
+                headers={"Authorization": f"Bearer {api_key}"},
+                verify=verify,
+                timeout=15,
+            )
+        resp.raise_for_status()
+        data = resp.json()
+        return data["data"][0]["embedding"]
     except Exception:
         return None
 
