@@ -78,11 +78,23 @@ def embed_text(text: str, *, provider: str | None = None) -> EmbeddingResult | N
     return None
 
 
+_last_voyage_call: float = 0.0
+
+
 def _embed_voyage(text: str) -> list[float] | None:
     """Embed text using Voyage AI API directly via requests."""
+    import time
+
+    global _last_voyage_call
     api_key = os.environ.get("VOYAGE_API_KEY")
     if not api_key:
         return None
+
+    # Rate limit: minimum 200ms between calls
+    elapsed = time.monotonic() - _last_voyage_call
+    if elapsed < 0.2:
+        time.sleep(0.2 - elapsed)
+
     try:
         verify = _ssl_verify()
         with warnings.catch_warnings():
@@ -94,6 +106,23 @@ def _embed_voyage(text: str) -> list[float] | None:
                 verify=verify,
                 timeout=15,
             )
+        _last_voyage_call = time.monotonic()
+
+        # Retry once on 429
+        if resp.status_code == 429:
+            retry_after = float(resp.headers.get("Retry-After", "2"))
+            time.sleep(retry_after)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
+                resp = requests.post(
+                    "https://api.voyageai.com/v1/embeddings",
+                    json={"input": [text], "model": "voyage-4-lite"},
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    verify=verify,
+                    timeout=15,
+                )
+            _last_voyage_call = time.monotonic()
+
         resp.raise_for_status()
         data = resp.json()
         return data["data"][0]["embedding"]
