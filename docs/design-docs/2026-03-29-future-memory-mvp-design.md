@@ -230,7 +230,10 @@ User Prompt ──→ Hook fires ──→ Retriever ──→ cosine similarity
 
 What we're deliberately skipping relative to the paper, and why it matters:
 
-### Phase 2: Subtask-Level Extraction (Paper §3.1.4)
+### Phase 2: Baseline Metrics & Evaluation
+`fm baseline` command that analyses existing session logs and produces a "before" snapshot: error rates (failed tool calls), recovery patterns (error → retry → success), efficiency metrics (tool calls per turn, repeated operations), and session length. Running this before and after tip injection gives a measurable delta. Critical for demonstrating value to other users.
+
+### Phase 3: Subtask-Level Extraction (Paper §3.1.4)
 The paper's two-phase pipeline segments trajectories into logical subtasks (authentication, data retrieval, processing, etc.) and extracts tips per-subtask. This enables cross-task transfer — an auth tip from a Spotify task helps with a Venmo task. Our task-level tips won't transfer as well across dissimilar tasks that share subtask patterns.
 
 ### Phase 3: Tip Storage & Management (Paper §3.2)
