@@ -8,7 +8,6 @@ import click
 
 from fm.embeddings import embed_text, get_available_provider
 from fm.extractor import extract_tips_from_session
-from fm.models import Tip
 from fm.parser import parse_session
 from fm.retriever import format_tips, retrieve_tips
 from fm.store import TipStore
