@@ -137,12 +137,19 @@ def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) 
     store = TipStore(db)
     if verbose:
         from fm.embeddings import get_available_provider, embed_text as _et
+        from fm.retriever import _cosine_similarity
         provider = get_available_provider()
         click.echo(f"Provider: {provider}", err=True)
         result = _et(query, provider=provider)
         click.echo(f"Query embedded: {result is not None}", err=True)
+        if result:
+            click.echo(f"Query vector dims: {len(result.vector)}, first 5: {result.vector[:5]}", err=True)
         stored = store.get_tips_with_embeddings(provider=provider or "voyage")
         click.echo(f"Stored tips with provider '{provider}': {len(stored)}", err=True)
+        if result and stored:
+            for s in stored:
+                sim = _cosine_similarity(result.vector, s["embedding"])
+                click.echo(f"  sim={sim:.4f} dims={len(s['embedding'])} | {s['content'][:60]}", err=True)
     tips = retrieve_tips(query, store, threshold=threshold, top_k=top_k)
     output = format_tips(tips)
     if output:
