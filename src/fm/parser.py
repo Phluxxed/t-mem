@@ -154,6 +154,8 @@ def parse_session(
 
         elif entry_type == "user" and "toolUseResult" in entry:
             result = entry["toolUseResult"]
+            if not isinstance(result, dict):
+                continue
             content = entry.get("message", {}).get("content", [])
             if isinstance(content, list):
                 for block in content:
