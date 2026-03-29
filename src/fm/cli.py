@@ -6,7 +6,7 @@ from pathlib import Path
 
 import click
 
-from fm.embeddings import embed_text, get_available_provider
+from fm.embeddings import embed_text, embed_texts_batch, get_available_provider
 from fm.extractor import extract_tips_from_session
 from fm.parser import parse_session
 from fm.retriever import format_tips, retrieve_tips
@@ -50,18 +50,14 @@ def extract(jsonl_path: Path, db: Path, model: str) -> None:
     )
 
     provider = get_available_provider()
-    for tip in tips:
-        embedding_result = embed_text(
-            f"{tip.content} {tip.trigger}", provider=provider
-        )
-        if embedding_result:
-            store.add_tip(
-                tip,
-                embedding=embedding_result.vector,
-                embedding_provider=embedding_result.provider,
-            )
-        else:
-            store.add_tip(tip)
+    if tips:
+        texts = [f"{tip.content} {tip.trigger}" for tip in tips]
+        embeddings = embed_texts_batch(texts, provider=provider)
+        for tip, emb in zip(tips, embeddings):
+            if emb:
+                store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
+            else:
+                store.add_tip(tip)
 
     store.mark_session_processed(session_id, str(jsonl_path), tip_count=len(tips))
     click.echo(f"Extracted {len(tips)} tips from session {session_id}.")
@@ -104,18 +100,14 @@ def extract_all(db: Path, model: str) -> None:
             )
 
             provider = get_available_provider()
-            for tip in tips:
-                embedding_result = embed_text(
-                    f"{tip.content} {tip.trigger}", provider=provider
-                )
-                if embedding_result:
-                    store.add_tip(
-                        tip,
-                        embedding=embedding_result.vector,
-                        embedding_provider=embedding_result.provider,
-                    )
-                else:
-                    store.add_tip(tip)
+            if tips:
+                texts = [f"{tip.content} {tip.trigger}" for tip in tips]
+                embeddings = embed_texts_batch(texts, provider=provider)
+                for tip, emb in zip(tips, embeddings):
+                    if emb:
+                        store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
+                    else:
+                        store.add_tip(tip)
 
             store.mark_session_processed(
                 session_id, str(jsonl_file), tip_count=len(tips)
