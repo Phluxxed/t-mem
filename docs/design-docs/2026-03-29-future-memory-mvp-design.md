@@ -257,5 +257,8 @@ Uses an LLM at retrieval time to reason about task context, detect application d
 ### Phase 6: Direct API Integration
 Replace `claude` CLI subprocess calls with direct Anthropic API calls for extraction. The CLI already supports model selection (e.g. `--model haiku` for bulk extraction, `--model sonnet` for complex attribution), so the main benefits of API access are batching, programmatic error handling, and cost control.
 
-### Phase 7: Multi-Agent / Cross-Agent Learning
+### Phase 7: Meta-Cognitive / Design Principle Tips
+A fourth tip category beyond strategy/recovery/optimization — **"design principle"** or **"meta"** tips that capture recurring *reasoning failures* rather than task-specific action patterns. Examples: "when designing anything that calls an external API in a loop, consider rate limits", "when building a fallback chain, test the actual failure path not just availability." These are higher-level than the paper's tip categories — closer to the ReasoningBank approach (Paper §5.3) of extracting generalised reasoning strategies. Would require a different extraction prompt tuned for meta-cognitive patterns rather than concrete actions.
+
+### Phase 8: Multi-Agent / Cross-Agent Learning
 The paper mentions extending to multi-agent systems with cross-agent attribution and agent-role-aware guidance. Relevant if this gets plugged into Codex or other agent systems.
