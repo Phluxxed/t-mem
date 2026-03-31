@@ -199,5 +199,7 @@ def _embed_huggingface(text: str) -> list[float] | None:
 
             return list(np.mean(vector, axis=0).astype(float))
         return None
-    except Exception:
+    except Exception as e:
+        import sys
+        print(f"HuggingFace embed error: {type(e).__name__}: {e}", file=sys.stderr)
         return None

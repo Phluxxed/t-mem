@@ -84,15 +84,25 @@ def parse_session(
     entries = []
     session_id = ""
 
+    bad_lines = 0
     with open(jsonl_path) as f:
-        for line in f:
+        for lineno, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
-            entry = json.loads(line)
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as e:
+                import sys
+                print(f"parser: skipping malformed JSON at line {lineno} of {jsonl_path.name}: {e}", file=sys.stderr)
+                bad_lines += 1
+                continue
             entries.append(entry)
             if not session_id and entry.get("sessionId"):
                 session_id = entry["sessionId"]
+    if bad_lines:
+        import sys
+        print(f"parser: {bad_lines} malformed line(s) skipped in {jsonl_path.name}", file=sys.stderr)
 
     skip_types = {"file-history-snapshot"}
     skip_subtypes = {"stop_hook_summary", "turn_duration", "compact_boundary", "local_command"}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 
 from fm.llm import call_claude
 from fm.models import Subtask, Turn
@@ -36,7 +37,8 @@ def _parse_segmentation(raw: str, turns: list[Turn], *, session_id: str) -> list
                     turns=subtask_turns,
                 )
             )
-        except (KeyError, TypeError, IndexError):
+        except (KeyError, TypeError, IndexError) as e:
+            print(f"segmenter: skipping malformed subtask item {item!r:.80}: {e}", file=sys.stderr)
             continue
 
     if not subtasks:

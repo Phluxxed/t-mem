@@ -50,7 +50,8 @@ def _parse_tips_json(
                 subtask_description=subtask.generalized_description,
             )
             tips.append(tip)
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as e:
+            print(f"extractor: dropping malformed tip from LLM response: {e} — item={item!r:.120}", file=sys.stderr)
             continue
 
     return tips

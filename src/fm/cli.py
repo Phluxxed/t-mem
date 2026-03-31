@@ -50,6 +50,7 @@ def extract(jsonl_path: Path, db: Path, model: str) -> None:
     )
 
     provider = get_available_provider()
+    missing_embeddings = 0
     if tips:
         texts = [store.get_embedding_key(tip) for tip in tips]
         embeddings = embed_texts_batch(texts, provider=provider)
@@ -58,9 +59,13 @@ def extract(jsonl_path: Path, db: Path, model: str) -> None:
                 store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
             else:
                 store.add_tip(tip)
+                missing_embeddings += 1
 
     store.mark_session_processed(session_id, str(jsonl_path), tip_count=len(tips))
-    click.echo(f"Extracted {len(tips)} tips from session {session_id}.")
+    msg = f"Extracted {len(tips)} tips from session {session_id}."
+    if missing_embeddings:
+        msg += f" Warning: {missing_embeddings}/{len(tips)} tips saved without embeddings (run 'fm tips embed' to backfill)."
+    click.echo(msg)
 
 
 @main.command("extract-all")
@@ -100,6 +105,7 @@ def extract_all(db: Path, model: str) -> None:
             )
 
             provider = get_available_provider()
+            missing_embeddings = 0
             if tips:
                 texts = [store.get_embedding_key(tip) for tip in tips]
                 embeddings = embed_texts_batch(texts, provider=provider)
@@ -108,6 +114,9 @@ def extract_all(db: Path, model: str) -> None:
                         store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
                     else:
                         store.add_tip(tip)
+                        missing_embeddings += 1
+                if missing_embeddings:
+                    click.echo(f"  Warning: {missing_embeddings}/{len(tips)} tips saved without embeddings.")
 
             store.mark_session_processed(
                 session_id, str(jsonl_file), tip_count=len(tips)
@@ -160,7 +169,8 @@ def hook_retrieve(db: Path, threshold: float, top_k: int) -> None:
         raw = sys.stdin.read()
         data = json.loads(raw)
         prompt = data.get("prompt", "")
-    except (json.JSONDecodeError, KeyError):
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"hook-retrieve: failed to parse stdin payload: {e}", file=sys.stderr)
         return
 
     if not prompt:
@@ -227,6 +237,7 @@ def tips_embed(db: Path) -> None:
         return
 
     updated = 0
+    failed = 0
     for tip in all_tips:
         raw = store.get_tip_with_embedding(tip.id)
         if raw and raw.get("embedding"):
@@ -243,8 +254,14 @@ def tips_embed(db: Path) -> None:
             )
             store._conn.commit()
             updated += 1
+        else:
+            click.echo(f"  Warning: failed to embed tip {tip.id} ({store.get_embedding_key(tip)[:60]})", err=True)
+            failed += 1
 
-    click.echo(f"Embedded {updated} tips using {provider}.")
+    msg = f"Embedded {updated} tips using {provider}."
+    if failed:
+        msg += f" {failed} tip(s) failed — run 'fm tips embed' again to retry."
+    click.echo(msg)
 
 
 @main.command("telemetry")
