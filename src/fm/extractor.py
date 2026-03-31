@@ -2,19 +2,26 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
 import sys
 
-from fm.models import Tip, Turn
-from fm.prompts.extract import build_extraction_prompt
+from fm.attribution import extract_attribution
+from fm.intelligence import extract_intelligence
+from fm.llm import call_claude
+from fm.models import Subtask, SubtaskAttribution, SubtaskIntelligence, Tip, Turn
+from fm.prompts.tips_gen import build_tips_generation_prompt
+from fm.segmenter import segment_session
 
 
-def _parse_tips_json(raw: str, session_id: str, project: str) -> list[Tip]:
-    """Parse the LLM's JSON response into Tip objects."""
+def _parse_tips_json(
+    raw: str,
+    *,
+    session_id: str,
+    project: str,
+    subtask: Subtask,
+) -> list[Tip]:
     json_match = re.search(r"\{[\s\S]*\}", raw)
     if not json_match:
         return []
-
     try:
         data = json.loads(json_match.group())
     except json.JSONDecodeError:
@@ -38,12 +45,32 @@ def _parse_tips_json(raw: str, session_id: str, project: str) -> list[Tip]:
                 source_session_id=session_id,
                 source_project=project,
                 task_context=item.get("task_context"),
+                subtask_id=subtask.id,
+                subtask_description=subtask.generalized_description,
             )
             tips.append(tip)
         except (KeyError, ValueError):
             continue
 
     return tips
+
+
+def _extract_tips_from_subtask(
+    subtask: Subtask,
+    intelligence: SubtaskIntelligence,
+    attribution: SubtaskAttribution,
+    *,
+    session_id: str,
+    project: str,
+    model: str,
+) -> list[Tip]:
+    prompt = build_tips_generation_prompt(
+        subtask, intelligence, attribution, project=project
+    )
+    raw = call_claude(prompt, model=model)
+    if raw is None:
+        return []
+    return _parse_tips_json(raw, session_id=session_id, project=project, subtask=subtask)
 
 
 def extract_tips_from_session(
@@ -53,38 +80,28 @@ def extract_tips_from_session(
     project: str,
     model: str = "sonnet",
 ) -> list[Tip]:
-    """Extract tips from parsed session turns using the claude CLI."""
+    """Extract tips from a session using the full three-stage pipeline per subtask."""
     if not turns:
         return []
 
-    prompt = build_extraction_prompt(turns, session_id=session_id, project=project)
+    subtasks = segment_session(turns, session_id=session_id, model=model)
 
-    try:
-        result = subprocess.run(
-            [
-                "claude",
-                "--print",
-                "--model", model,
-            ],
-            input=prompt,
-            capture_output=True,
-            text=True,
-            timeout=120,
+    all_tips: list[Tip] = []
+    for subtask in subtasks:
+        intelligence = extract_intelligence(subtask, model=model)
+        if intelligence is None:
+            print(f"  Warning: intelligence extraction failed for subtask {subtask.id}", file=sys.stderr)
+            continue
+
+        attribution = extract_attribution(subtask, intelligence, model=model)
+        if attribution is None:
+            print(f"  Warning: attribution failed for subtask {subtask.id}", file=sys.stderr)
+            continue
+
+        tips = _extract_tips_from_subtask(
+            subtask, intelligence, attribution,
+            session_id=session_id, project=project, model=model,
         )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return []
+        all_tips.extend(tips)
 
-    if result.returncode != 0:
-        print(
-            f"Warning: claude CLI returned {result.returncode}: {result.stderr}",
-            file=sys.stderr,
-        )
-        return []
-
-    if not result.stdout.strip():
-        print("Warning: claude CLI returned empty output", file=sys.stderr)
-        if result.stderr:
-            print(f"  stderr: {result.stderr[:500]}", file=sys.stderr)
-        return []
-
-    return _parse_tips_json(result.stdout, session_id, project)
+    return all_tips

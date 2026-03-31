@@ -6,6 +6,25 @@ from click.testing import CliRunner
 
 from fm.cli import main
 
+_SEGMENTATION_RESPONSE = json.dumps([{
+    "subtask_id": "s1",
+    "raw_description": "Fix the login bug",
+    "generalized_description": "Agent fixes authentication bug",
+    "turn_indices": [0, 1],
+}])
+
+_INTELLIGENCE_RESPONSE = json.dumps({
+    "reasoning_categories": {"analytical": [], "planning": [], "validation": [], "reflection": []},
+    "cognitive_patterns": ["error_recognition"],
+    "outcome": "recovery",
+})
+
+_ATTRIBUTION_RESPONSE = json.dumps({
+    "root_causes": ["always returns True"],
+    "contributing_factors": [],
+    "causal_chain": ["1: auth bypassed", "2: fix applied"],
+})
+
 
 class TestExtractCommand:
     def test_extract_single_session(self, sample_jsonl: Path, tmp_path: Path) -> None:
@@ -22,12 +41,15 @@ class TestExtractCommand:
                 }
             ]
         })
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        mock_result.stdout = mock_tips_json
+
+        responses = [_SEGMENTATION_RESPONSE, _INTELLIGENCE_RESPONSE, _ATTRIBUTION_RESPONSE, mock_tips_json]
 
         runner = CliRunner()
-        with patch("fm.extractor.subprocess.run", return_value=mock_result):
+        with patch("fm.llm.subprocess.run") as mock_run:
+            mock_run.side_effect = [
+                type("R", (), {"returncode": 0, "stdout": r, "stderr": ""})()
+                for r in responses
+            ]
             with patch("fm.embeddings._embed_voyage", return_value=[0.1, 0.2]):
                 with patch.dict("os.environ", {"VOYAGE_API_KEY": "test"}):
                     result = runner.invoke(

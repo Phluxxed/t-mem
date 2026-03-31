@@ -4,61 +4,25 @@ from unittest.mock import MagicMock, patch
 
 from fm.extractor import extract_tips_from_session
 from fm.models import Action, Turn
-from fm.prompts.extract import build_extraction_prompt
 
+SEGMENTATION_RESPONSE = json.dumps([{
+    "subtask_id": "s1",
+    "raw_description": "Fix the bug",
+    "generalized_description": "Agent fixes a bug in authentication",
+    "turn_indices": [0],
+}])
 
-class TestBuildExtractionPrompt:
-    def test_includes_turns(self) -> None:
-        turns = [
-            Turn(
-                user_prompt="Fix the bug",
-                thinking=["Need to check auth"],
-                actions=[
-                    Action(
-                        tool_name="Read",
-                        tool_input={"file_path": "auth.py"},
-                        result_stdout="def login(): return True",
-                    )
-                ],
-                response_text="Found the issue.",
-                timestamp="2026-03-29T01:00:00Z",
-                cwd="/project",
-            )
-        ]
-        prompt = build_extraction_prompt(turns, session_id="s1", project="my-proj")
-        assert "Fix the bug" in prompt
-        assert "Need to check auth" in prompt
-        assert "Read" in prompt
-        assert "auth.py" in prompt
+INTELLIGENCE_RESPONSE = json.dumps({
+    "reasoning_categories": {"analytical": [], "planning": [], "validation": [], "reflection": []},
+    "cognitive_patterns": ["error_recognition"],
+    "outcome": "recovery",
+})
 
-    def test_includes_json_schema(self) -> None:
-        turns = [Turn(user_prompt="Do something")]
-        prompt = build_extraction_prompt(turns, session_id="s1", project="proj")
-        assert '"category"' in prompt
-        assert '"strategy"' in prompt
-        assert '"recovery"' in prompt
-        assert '"optimization"' in prompt
-
-    def test_includes_few_shot_examples(self) -> None:
-        turns = [Turn(user_prompt="Do something")]
-        prompt = build_extraction_prompt(turns, session_id="s1", project="proj")
-        assert "Example" in prompt or "example" in prompt
-
-    def test_truncates_large_tool_output(self) -> None:
-        turns = [
-            Turn(
-                user_prompt="Run it",
-                actions=[
-                    Action(
-                        tool_name="Bash",
-                        tool_input={"command": "cat bigfile"},
-                        result_stdout="x" * 20000,
-                    )
-                ],
-            )
-        ]
-        prompt = build_extraction_prompt(turns, session_id="s1", project="proj")
-        assert len(prompt) < 100000
+ATTRIBUTION_RESPONSE = json.dumps({
+    "root_causes": ["missing null check"],
+    "contributing_factors": [],
+    "causal_chain": ["1: request fails", "2: null pointer"],
+})
 
 
 class TestExtractTipsFromSession:
@@ -78,10 +42,6 @@ class TestExtractTipsFromSession:
             ]
         })
 
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        mock_result.stdout = mock_tips_json
-
         turns = [
             Turn(
                 user_prompt="Fix the bug",
@@ -91,7 +51,12 @@ class TestExtractTipsFromSession:
             )
         ]
 
-        with patch("fm.extractor.subprocess.run", return_value=mock_result):
+        responses = [SEGMENTATION_RESPONSE, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, mock_tips_json]
+        with patch("fm.llm.subprocess.run") as mock_run:
+            mock_run.side_effect = [
+                type("R", (), {"returncode": 0, "stdout": r, "stderr": ""})()
+                for r in responses
+            ]
             tips = extract_tips_from_session(
                 turns, session_id="s1", project="proj"
             )
@@ -102,14 +67,9 @@ class TestExtractTipsFromSession:
         assert tips[0].source_project == "proj"
 
     def test_returns_empty_on_cli_failure(self) -> None:
-        mock_result = MagicMock()
-        mock_result.returncode = 1
-        mock_result.stdout = ""
-        mock_result.stderr = "error"
-
         turns = [Turn(user_prompt="Do something")]
 
-        with patch("fm.extractor.subprocess.run", return_value=mock_result):
+        with patch("fm.segmenter.call_claude", return_value=None):
             tips = extract_tips_from_session(
                 turns, session_id="s1", project="proj"
             )
@@ -117,13 +77,12 @@ class TestExtractTipsFromSession:
         assert tips == []
 
     def test_returns_empty_on_invalid_json(self) -> None:
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        mock_result.stdout = "This is not JSON"
-
         turns = [Turn(user_prompt="Do something")]
 
-        with patch("fm.extractor.subprocess.run", return_value=mock_result):
+        with patch("fm.segmenter.call_claude", return_value=SEGMENTATION_RESPONSE), \
+             patch("fm.intelligence.call_claude", return_value=INTELLIGENCE_RESPONSE), \
+             patch("fm.attribution.call_claude", return_value=ATTRIBUTION_RESPONSE), \
+             patch("fm.extractor.call_claude", return_value="This is not JSON"):
             tips = extract_tips_from_session(
                 turns, session_id="s1", project="proj"
             )
