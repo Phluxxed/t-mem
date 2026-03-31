@@ -42,19 +42,10 @@ def _ssl_verify() -> bool:
 
 def get_available_provider() -> str | None:
     """Return the best available embedding provider, or None."""
-    verify = _ssl_verify()
     if os.environ.get("VOYAGE_API_KEY"):
         return "voyage"
-    try:
-        resp = requests.head(
-            "https://router.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2",
-            timeout=2,
-            verify=verify,
-        )
-        if resp.status_code < 500:
-            return "huggingface"
-    except requests.RequestException:
-        pass
+    if os.environ.get("HF_TOKEN"):
+        return "huggingface"
     return None
 
 
@@ -178,7 +169,10 @@ def _embed_voyage(text: str) -> list[float] | None:
 
 
 def _embed_huggingface(text: str) -> list[float] | None:
-    """Embed text using HuggingFace Inference API (free tier)."""
+    """Embed text using HuggingFace Inference API (requires HF_TOKEN)."""
+    hf_token = os.environ.get("HF_TOKEN")
+    if not hf_token:
+        return None
     api_url = "https://router.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
     verify = _ssl_verify()
     try:
@@ -187,6 +181,7 @@ def _embed_huggingface(text: str) -> list[float] | None:
             resp = requests.post(
                 api_url,
                 json={"inputs": text, "options": {"wait_for_model": True}},
+                headers={"Authorization": f"Bearer {hf_token}"},
                 timeout=10,
                 verify=verify,
             )
