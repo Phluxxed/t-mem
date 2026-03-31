@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import overload
+from typing import overload, Literal
 
 from fm.models import Action, Turn
 
@@ -70,9 +70,9 @@ def _is_user_prompt(entry: dict) -> bool:
 
 
 @overload
-def parse_session(jsonl_path: Path, *, return_session_id: bool = False) -> list[Turn]: ...
+def parse_session(jsonl_path: Path, *, return_session_id: Literal[False] = ...) -> list[Turn]: ...
 @overload
-def parse_session(jsonl_path: Path, *, return_session_id: bool = True) -> tuple[str, list[Turn]]: ...
+def parse_session(jsonl_path: Path, *, return_session_id: Literal[True]) -> tuple[str, list[Turn]]: ...
 
 
 def parse_session(
@@ -97,16 +97,18 @@ def parse_session(
     skip_types = {"file-history-snapshot"}
     skip_subtypes = {"stop_hook_summary", "turn_duration", "compact_boundary", "local_command"}
 
-    filtered = []
-    for entry in entries:
+    def _should_skip(entry: dict) -> bool:
         if entry.get("type") in skip_types:
-            continue
+            return True
         if entry.get("type") == "system" and entry.get("subtype") in skip_subtypes:
-            continue
-        filtered.append(entry)
+            return True
+        return False
 
-    tree = _build_tree(filtered)
-    ordered = _walk_tree(tree, None)
+    # Build tree from ALL entries so compact_boundary UUIDs remain reachable
+    # as parent references for their children (post-compaction entries).
+    # Skipping compact_boundary before tree build would orphan those children.
+    tree = _build_tree(entries)
+    ordered = [e for e in _walk_tree(tree, None) if not _should_skip(e)]
 
     turns: list[Turn] = []
     current_turn: Turn | None = None
