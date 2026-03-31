@@ -69,7 +69,8 @@ class TestExtractTipsFromSession:
     def test_returns_empty_on_cli_failure(self) -> None:
         turns = [Turn(user_prompt="Do something")]
 
-        with patch("fm.segmenter.call_claude", return_value=None):
+        with patch("fm.segmenter.call_claude", return_value=None), \
+             patch("fm.intelligence.call_claude", return_value=None):
             tips = extract_tips_from_session(
                 turns, session_id="s1", project="proj"
             )
