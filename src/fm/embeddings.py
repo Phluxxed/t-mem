@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import time
+import threading
 import warnings
 from dataclasses import dataclass
 
@@ -96,105 +98,81 @@ def embed_texts_batch(
     return [embed_text(t, provider=provider) for t in texts]
 
 
-def _embed_voyage_batch(texts: list[str]) -> list[list[float] | None] | None:
-    """Embed multiple texts in a single Voyage API call."""
-    import time
+# Thread-safe rate limiter for Voyage API
+_voyage_lock = threading.Lock()
+_last_voyage_call: float = 0.0
+_MIN_INTERVAL = 0.5  # seconds between calls
+_MAX_RETRIES = 6
+_BASE_BACKOFF = 2.0  # seconds, doubles each retry
 
-    global _last_voyage_call
+
+def _voyage_post(payload: dict, *, timeout: int) -> requests.Response:
+    """POST to Voyage embeddings API with rate limiting and exponential backoff retry."""
     api_key = os.environ.get("VOYAGE_API_KEY")
     if not api_key:
-        return None
+        raise ValueError("VOYAGE_API_KEY not set")
 
-    elapsed = time.monotonic() - _last_voyage_call
-    if elapsed < 0.5:
-        time.sleep(0.5 - elapsed)
+    verify = _ssl_verify()
+    headers = {"Authorization": f"Bearer {api_key}"}
+    url = "https://api.voyageai.com/v1/embeddings"
 
-    try:
-        verify = _ssl_verify()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
-            resp = requests.post(
-                "https://api.voyageai.com/v1/embeddings",
-                json={"input": texts, "model": "voyage-4-lite"},
-                headers={"Authorization": f"Bearer {api_key}"},
-                verify=verify,
-                timeout=30,
-            )
-        _last_voyage_call = time.monotonic()
+    resp: requests.Response | None = None
+    for attempt in range(_MAX_RETRIES):
+        with _voyage_lock:
+            global _last_voyage_call
+            elapsed = time.monotonic() - _last_voyage_call
+            if elapsed < _MIN_INTERVAL:
+                time.sleep(_MIN_INTERVAL - elapsed)
 
-        if resp.status_code == 429:
-            retry_after = float(resp.headers.get("Retry-After", "3"))
-            time.sleep(retry_after)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
-                resp = requests.post(
-                    "https://api.voyageai.com/v1/embeddings",
-                    json={"input": texts, "model": "voyage-4-lite"},
-                    headers={"Authorization": f"Bearer {api_key}"},
-                    verify=verify,
-                    timeout=30,
-                )
+                resp = requests.post(url, json=payload, headers=headers, verify=verify, timeout=timeout)
             _last_voyage_call = time.monotonic()
 
+        if resp.status_code != 429:
+            return resp
+
+        # 429: back off and retry
+        retry_after = float(resp.headers.get("Retry-After", _BASE_BACKOFF * (2 ** attempt)))
+        if attempt < _MAX_RETRIES - 1:
+            time.sleep(retry_after)
+
+    # All retries exhausted — return last response so caller can raise_for_status
+    if resp is None:
+        raise RuntimeError("No attempts made (MAX_RETRIES must be > 0)")
+    return resp
+
+
+def _embed_voyage_batch(texts: list[str]) -> list[list[float] | None] | None:
+    """Embed multiple texts in a single Voyage API call."""
+    import sys
+
+    if not os.environ.get("VOYAGE_API_KEY"):
+        return None
+
+    try:
+        resp = _voyage_post({"input": texts, "model": "voyage-4-lite"}, timeout=30)
         resp.raise_for_status()
         data = resp.json()
         return [item["embedding"] for item in data["data"]]
     except Exception as e:
-        import sys
         print(f"Voyage batch embed error: {type(e).__name__}: {e}", file=sys.stderr)
         return None
 
 
-_last_voyage_call: float = 0.0
-
-
 def _embed_voyage(text: str) -> list[float] | None:
     """Embed text using Voyage AI API directly via requests."""
-    import time
+    import sys
 
-    global _last_voyage_call
-    api_key = os.environ.get("VOYAGE_API_KEY")
-    if not api_key:
+    if not os.environ.get("VOYAGE_API_KEY"):
         return None
 
-    # Rate limit: minimum 500ms between calls
-    elapsed = time.monotonic() - _last_voyage_call
-    if elapsed < 0.5:
-        time.sleep(0.5 - elapsed)
-
     try:
-        verify = _ssl_verify()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
-            resp = requests.post(
-                "https://api.voyageai.com/v1/embeddings",
-                json={"input": [text], "model": "voyage-4-lite"},
-                headers={"Authorization": f"Bearer {api_key}"},
-                verify=verify,
-                timeout=15,
-            )
-        _last_voyage_call = time.monotonic()
-
-        # Retry once on 429
-        if resp.status_code == 429:
-            retry_after = float(resp.headers.get("Retry-After", "2"))
-            time.sleep(retry_after)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=urllib3.exceptions.InsecureRequestWarning)
-                resp = requests.post(
-                    "https://api.voyageai.com/v1/embeddings",
-                    json={"input": [text], "model": "voyage-4-lite"},
-                    headers={"Authorization": f"Bearer {api_key}"},
-                    verify=verify,
-                    timeout=15,
-                )
-            _last_voyage_call = time.monotonic()
-
+        resp = _voyage_post({"input": [text], "model": "voyage-4-lite"}, timeout=15)
         resp.raise_for_status()
         data = resp.json()
         return data["data"][0]["embedding"]
     except Exception as e:
-        import sys
         print(f"Voyage embed error: {type(e).__name__}: {e}", file=sys.stderr)
         return None
 
