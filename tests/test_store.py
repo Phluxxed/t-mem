@@ -89,3 +89,50 @@ class TestTipStore:
         retrieved = store.get_tip(tip.id)
         assert retrieved is not None
         assert retrieved.steps == ["Do A", "Do B", "Do C"]
+
+
+import tempfile
+
+
+def test_add_tip_with_subtask_fields():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        store = TipStore(Path(tmpdir) / "tips.db")
+        tip = _make_tip(
+            subtask_id="s1",
+            subtask_description="Agent configures Python environment",
+        )
+        store.add_tip(tip)
+        retrieved = store.get_tip(tip.id)
+        assert retrieved is not None
+        assert retrieved.subtask_id == "s1"
+        assert retrieved.subtask_description == "Agent configures Python environment"
+
+
+def test_add_tip_without_subtask_fields():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        store = TipStore(Path(tmpdir) / "tips.db")
+        tip = _make_tip()
+        store.add_tip(tip)
+        retrieved = store.get_tip(tip.id)
+        assert retrieved is not None
+        assert retrieved.subtask_id is None
+        assert retrieved.subtask_description is None
+
+
+def test_embed_key_uses_subtask_description_when_present():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        store = TipStore(Path(tmpdir) / "tips.db")
+        tip = _make_tip(
+            subtask_id="s1",
+            subtask_description="Agent debugs SSL failure",
+        )
+        key = store.get_embedding_key(tip)
+        assert key == "Agent debugs SSL failure"
+
+
+def test_embed_key_falls_back_to_content_trigger():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        store = TipStore(Path(tmpdir) / "tips.db")
+        tip = _make_tip(content="do X", trigger="when Y")
+        key = store.get_embedding_key(tip)
+        assert key == "do X when Y"
