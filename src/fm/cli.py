@@ -51,7 +51,7 @@ def extract(jsonl_path: Path, db: Path, model: str) -> None:
 
     provider = get_available_provider()
     if tips:
-        texts = [f"{tip.content} {tip.trigger}" for tip in tips]
+        texts = [store.get_embedding_key(tip) for tip in tips]
         embeddings = embed_texts_batch(texts, provider=provider)
         for tip, emb in zip(tips, embeddings):
             if emb:
@@ -101,7 +101,7 @@ def extract_all(db: Path, model: str) -> None:
 
             provider = get_available_provider()
             if tips:
-                texts = [f"{tip.content} {tip.trigger}" for tip in tips]
+                texts = [store.get_embedding_key(tip) for tip in tips]
                 embeddings = embed_texts_batch(texts, provider=provider)
                 for tip, emb in zip(tips, embeddings):
                     if emb:
@@ -121,7 +121,7 @@ def extract_all(db: Path, model: str) -> None:
 @main.command()
 @click.argument("query")
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
-@click.option("--threshold", default=0.35, help="Cosine similarity threshold.")
+@click.option("--threshold", default=0.6, help="Cosine similarity threshold.")
 @click.option("--top-k", default=5, help="Max tips to return.")
 @click.option("--verbose", "-v", is_flag=True, help="Show debug info.")
 def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) -> None:
@@ -152,7 +152,7 @@ def retrieve(query: str, db: Path, threshold: float, top_k: int, verbose: bool) 
 
 @main.command("hook-retrieve")
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
-@click.option("--threshold", default=0.35)
+@click.option("--threshold", default=0.6)
 @click.option("--top-k", default=5)
 def hook_retrieve(db: Path, threshold: float, top_k: int) -> None:
     """Hook entrypoint: reads JSON from stdin, outputs tips to stdout."""
@@ -231,7 +231,7 @@ def tips_embed(db: Path) -> None:
         raw = store.get_tip_with_embedding(tip.id)
         if raw and raw.get("embedding"):
             continue
-        embedding_result = embed_text(f"{tip.content} {tip.trigger}", provider=provider)
+        embedding_result = embed_text(store.get_embedding_key(tip), provider=provider)
         if embedding_result:
             store._conn.execute(
                 "UPDATE tips SET embedding = ?, embedding_provider = ? WHERE id = ?",
@@ -247,4 +247,60 @@ def tips_embed(db: Path) -> None:
     click.echo(f"Embedded {updated} tips using {provider}.")
 
 
+@main.command("telemetry")
+@click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
+def telemetry(db: Path) -> None:
+    """Show tip retrieval stats."""
+    store = TipStore(db)
+    stats = store.get_retrieval_stats()
+
+    click.echo(f"Total retrievals: {stats['total_retrievals']}")
+    click.echo(f"Tips never retrieved: {stats['never_retrieved']}")
+
+    if stats["top_tips"]:
+        click.echo("\nTop retrieved tips:")
+        for t in stats["top_tips"]:
+            click.echo(
+                f"  [{t['hits']}x, avg {t['avg_score']:.2f}] "
+                f"[{t['priority'].upper()} {t['category']}] "
+                f"{t['content'][:80]}"
+            )
+
+    if stats["recent"]:
+        click.echo("\nRecent retrievals:")
+        for r in stats["recent"]:
+            date = r["retrieved_at"][:16].replace("T", " ")
+            click.echo(
+                f"  {date} | score={r['similarity_score']:.2f} | "
+                f"{r['content'][:60]}"
+            )
+
+
+@main.group()
+def db() -> None:
+    """Database maintenance commands."""
+    pass
+
+
+@db.command("migrate")
+@click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
+@click.option("--clear-tips", is_flag=True, default=False,
+              help="Delete all existing session-level tips and processed_sessions (required before re-extraction with new pipeline).")
+def db_migrate(db: Path, clear_tips: bool) -> None:
+    """Apply schema migrations to the database."""
+    store = TipStore(db)
+    store.migrate_add_subtask_columns()
+    click.echo("Schema migration complete: subtask_id and subtask_description columns added.")
+
+    if clear_tips:
+        count = store._conn.execute("SELECT COUNT(*) FROM tips").fetchone()[0]
+        store._conn.execute("DELETE FROM tips")
+        store._conn.execute("DELETE FROM processed_sessions")
+        store._conn.commit()
+        click.echo(f"Cleared {count} tips and all processed_sessions. Ready for fresh extraction.")
+    else:
+        click.echo("Pass --clear-tips to clear old session-level tips and processed_sessions before re-running extract-all.")
+
+
+main.add_command(db)
 main.add_command(tips)
