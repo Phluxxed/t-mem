@@ -26,6 +26,29 @@ class Turn:
 
 
 @dataclass
+class Subtask:
+    id: str
+    session_id: str
+    raw_description: str
+    generalized_description: str
+    turns: list[Turn]
+
+
+@dataclass
+class SubtaskIntelligence:
+    reasoning_categories: dict[str, list[str]]  # analytical/planning/validation/reflection
+    cognitive_patterns: list[str]
+    outcome: str  # "clean_success" | "inefficient_success" | "recovery" | "failure"
+
+
+@dataclass
+class SubtaskAttribution:
+    root_causes: list[str]
+    contributing_factors: list[str]
+    causal_chain: list[str]
+
+
+@dataclass
 class Tip:
     category: str  # "strategy" | "recovery" | "optimization"
     content: str
@@ -38,6 +61,8 @@ class Tip:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     negative_example: str | None = None
     task_context: str | None = None
+    subtask_id: str | None = None
+    subtask_description: str | None = None
     created_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
