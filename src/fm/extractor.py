@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from fm.attribution import extract_attribution
 from fm.intelligence import extract_intelligence
@@ -73,12 +74,37 @@ def _extract_tips_from_subtask(
     return _parse_tips_json(raw, session_id=session_id, project=project, subtask=subtask)
 
 
+def _process_subtask(
+    subtask: Subtask,
+    *,
+    session_id: str,
+    project: str,
+    model: str,
+) -> list[Tip]:
+    """Run the full 3-stage pipeline for a single subtask. Safe to call concurrently."""
+    intelligence = extract_intelligence(subtask, model=model)
+    if intelligence is None:
+        print(f"  Warning: intelligence extraction failed for subtask {subtask.id}", file=sys.stderr)
+        return []
+
+    attribution = extract_attribution(subtask, intelligence, model=model)
+    if attribution is None:
+        print(f"  Warning: attribution failed for subtask {subtask.id}", file=sys.stderr)
+        return []
+
+    return _extract_tips_from_subtask(
+        subtask, intelligence, attribution,
+        session_id=session_id, project=project, model=model,
+    )
+
+
 def extract_tips_from_session(
     turns: list[Turn],
     *,
     session_id: str,
     project: str,
     model: str = "sonnet",
+    max_workers: int = 4,
 ) -> list[Tip]:
     """Extract tips from a session using the full three-stage pipeline per subtask."""
     if not turns:
@@ -87,21 +113,15 @@ def extract_tips_from_session(
     subtasks = segment_session(turns, session_id=session_id, model=model)
 
     all_tips: list[Tip] = []
-    for subtask in subtasks:
-        intelligence = extract_intelligence(subtask, model=model)
-        if intelligence is None:
-            print(f"  Warning: intelligence extraction failed for subtask {subtask.id}", file=sys.stderr)
-            continue
-
-        attribution = extract_attribution(subtask, intelligence, model=model)
-        if attribution is None:
-            print(f"  Warning: attribution failed for subtask {subtask.id}", file=sys.stderr)
-            continue
-
-        tips = _extract_tips_from_subtask(
-            subtask, intelligence, attribution,
-            session_id=session_id, project=project, model=model,
-        )
-        all_tips.extend(tips)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                _process_subtask, subtask,
+                session_id=session_id, project=project, model=model,
+            ): subtask
+            for subtask in subtasks
+        }
+        for future in as_completed(futures):
+            all_tips.extend(future.result())
 
     return all_tips
