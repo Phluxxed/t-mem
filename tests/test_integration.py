@@ -63,8 +63,11 @@ class TestFullPipeline:
                 type("R", (), {"returncode": 0, "stdout": r, "stderr": ""})()
                 for r in responses
             ]
-            with patch("fm.embeddings._embed_voyage") as mock_voyage:
-                mock_voyage.side_effect = lambda text: [0.8, 0.1, 0.1] if "auth" in text.lower() else [0.1, 0.8, 0.1]
+            with patch("fm.embeddings._embed_voyage_batch") as mock_batch:
+                mock_batch.side_effect = lambda texts: [
+                    [0.8, 0.1, 0.1] if "auth" in t.lower() else [0.1, 0.8, 0.1]
+                    for t in texts
+                ]
                 with patch.dict("os.environ", {"VOYAGE_API_KEY": "test"}):
                     result = runner.invoke(
                         main,

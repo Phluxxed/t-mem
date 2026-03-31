@@ -80,13 +80,19 @@ def embed_texts_batch(
 
     if provider == "voyage":
         vectors = _embed_voyage_batch(texts)
-        if vectors:
+        if vectors is not None:
             return [
                 EmbeddingResult(vector=v, provider="voyage") if v else None
                 for v in vectors
             ]
-    # Fall back to individual calls
-    return [embed_text(t, provider=provider) for t in texts]
+        # Batch failed after retries — don't fall back to individual calls,
+        # that would spam the API with N requests. Caller should retry later.
+        return [None] * len(texts)
+
+    if provider == "huggingface":
+        return [embed_text(t, provider=provider) for t in texts]
+
+    return [None] * len(texts)
 
 
 # Thread-safe rate limiter for Voyage API
