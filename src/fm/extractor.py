@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from fm.attribution import extract_attribution
@@ -81,22 +82,33 @@ def _process_subtask(
     session_id: str,
     project: str,
     model: str,
+    counter: list[int],
+    total: int,
+    lock: threading.Lock,
 ) -> list[Tip]:
     """Run the full 3-stage pipeline for a single subtask. Safe to call concurrently."""
+    desc = subtask.generalized_description[:60]
+    with lock:
+        counter[0] += 1
+        n = counter[0]
+    print(f"  [{n}/{total}] {desc}...", file=sys.stderr)
+
     intelligence = extract_intelligence(subtask, model=model)
     if intelligence is None:
-        print(f"  Warning: intelligence extraction failed for subtask {subtask.id}", file=sys.stderr)
+        print(f"  [{n}/{total}] Warning: intelligence extraction failed for subtask {subtask.id}", file=sys.stderr)
         return []
 
     attribution = extract_attribution(subtask, intelligence, model=model)
     if attribution is None:
-        print(f"  Warning: attribution failed for subtask {subtask.id}", file=sys.stderr)
+        print(f"  [{n}/{total}] Warning: attribution failed for subtask {subtask.id}", file=sys.stderr)
         return []
 
-    return _extract_tips_from_subtask(
+    tips = _extract_tips_from_subtask(
         subtask, intelligence, attribution,
         session_id=session_id, project=project, model=model,
     )
+    print(f"  [{n}/{total}] done — {len(tips)} tip(s)", file=sys.stderr)
+    return tips
 
 
 def extract_tips_from_session(
@@ -111,7 +123,13 @@ def extract_tips_from_session(
     if not turns:
         return []
 
+    print("  Segmenting session into subtasks...", file=sys.stderr)
     subtasks = segment_session(turns, session_id=session_id, model=model)
+    print(f"  Found {len(subtasks)} subtask(s), processing (max {max_workers} concurrent)...", file=sys.stderr)
+
+    counter: list[int] = [0]
+    lock = threading.Lock()
+    total = len(subtasks)
 
     all_tips: list[Tip] = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -119,6 +137,7 @@ def extract_tips_from_session(
             executor.submit(
                 _process_subtask, subtask,
                 session_id=session_id, project=project, model=model,
+                counter=counter, total=total, lock=lock,
             ): subtask
             for subtask in subtasks
         }
