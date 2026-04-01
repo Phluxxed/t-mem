@@ -6,7 +6,7 @@ from pathlib import Path
 
 import click
 
-from fm.embeddings import embed_text, embed_texts_batch, get_available_provider
+from fm.embeddings import embed_texts_batch, get_available_provider
 from fm.extractor import extract_tips_from_session
 from fm.parser import parse_session
 from fm.retriever import format_tips, retrieve_tips
@@ -236,13 +236,22 @@ def tips_embed(db: Path) -> None:
         click.echo("No embedding provider available. Set VOYAGE_API_KEY or check network.")
         return
 
+    unembedded = [
+        tip for tip in all_tips
+        if not (store.get_tip_with_embedding(tip.id) or {}).get("embedding")
+    ]
+
+    if not unembedded:
+        click.echo("All tips already have embeddings.")
+        return
+
+    click.echo(f"Embedding {len(unembedded)} tip(s) using {provider}...")
+    texts = [store.get_embedding_key(tip) for tip in unembedded]
+    results = embed_texts_batch(texts, provider=provider)
+
     updated = 0
     failed = 0
-    for tip in all_tips:
-        raw = store.get_tip_with_embedding(tip.id)
-        if raw and raw.get("embedding"):
-            continue
-        embedding_result = embed_text(store.get_embedding_key(tip), provider=provider)
+    for tip, embedding_result in zip(unembedded, results):
         if embedding_result:
             store._conn.execute(
                 "UPDATE tips SET embedding = ?, embedding_provider = ? WHERE id = ?",
@@ -252,15 +261,15 @@ def tips_embed(db: Path) -> None:
                     tip.id,
                 ),
             )
-            store._conn.commit()
             updated += 1
         else:
             click.echo(f"  Warning: failed to embed tip {tip.id} ({store.get_embedding_key(tip)[:60]})", err=True)
             failed += 1
+    store._conn.commit()
 
-    msg = f"Embedded {updated} tips using {provider}."
+    msg = f"Embedded {updated} tip(s)."
     if failed:
-        msg += f" {failed} tip(s) failed — run 'fm tips embed' again to retry."
+        msg += f" {failed} failed — run 'fm tips embed' again to retry."
     click.echo(msg)
 
 
