@@ -71,38 +71,48 @@ fm baseline                       # Capture pre-injection error/recovery metrics
 
 ## Hook Integration
 
-Inject relevant tips automatically at the start of each Claude Code prompt.
+The `hooks/` directory contains shell scripts for Claude Code integration. Copy them to `~/.claude/hooks/` and make them executable:
 
-Add to `~/.claude/settings.json`:
+```bash
+cp hooks/future-memory-retrieve.sh ~/.claude/hooks/
+cp hooks/future-memory-pre-compact.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/future-memory-retrieve.sh
+chmod +x ~/.claude/hooks/future-memory-pre-compact.sh
+```
+
+Then add to `~/.claude/settings.json`:
 
 ```json
 {
   "hooks": {
     "UserPromptSubmit": [
       {
-        "command": "fm hook-retrieve",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/future-memory-retrieve.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/future-memory-pre-compact.sh",
+            "timeout": 300
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-To suppress duplicate injections within a session, also add a `PreCompact` hook:
-
-```json
-"PreCompact": [
-  {
-    "matcher": "",
-    "hooks": [
-      {
-        "type": "command",
-        "command": "fm session clear-injections $SESSION_ID"
-      }
-    ]
-  }
-]
-```
+- **`UserPromptSubmit`** — retrieves relevant tips and injects them before each prompt
+- **`PreCompact`** — triggers background tip extraction from the session transcript and clears the injection cache so tips aren't repeated after compaction
 
 ## Tests
 
