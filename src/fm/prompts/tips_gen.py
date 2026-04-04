@@ -6,6 +6,7 @@ _TIP_SCHEMA = """\
 {
   "tips": [
     {
+      "title": "5-8 word imperative phrase summarising the tip",
       "category": "strategy" | "recovery" | "optimization",
       "content": "Actionable guidance in imperative form",
       "purpose": "Why this tip exists — what problem it prevents",

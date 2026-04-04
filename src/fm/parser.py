@@ -166,8 +166,6 @@ def parse_session(
 
         elif entry_type == "user" and "toolUseResult" in entry:
             result = entry["toolUseResult"]
-            if not isinstance(result, dict):
-                continue
             content = entry.get("message", {}).get("content", [])
             if isinstance(content, list):
                 for block in content:
@@ -175,9 +173,13 @@ def parse_session(
                         tool_use_id = block.get("tool_use_id")
                         if tool_use_id and tool_use_id in pending_actions:
                             action = pending_actions[tool_use_id]
-                            action.result_stdout = result.get("stdout")
-                            action.result_stderr = result.get("stderr")
-                            action.success = not result.get("interrupted", False)
+                            is_error = block.get("is_error", False)
+                            if isinstance(result, dict):
+                                action.result_stdout = result.get("stdout")
+                                action.result_stderr = result.get("stderr")
+                                action.success = not (is_error or result.get("interrupted", False))
+                            else:
+                                action.success = not is_error
 
     result_turns = [t for t in turns if t.user_prompt]
 

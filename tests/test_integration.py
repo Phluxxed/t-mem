@@ -55,7 +55,17 @@ class TestFullPipeline:
             ]
         })
 
-        responses = [_SEGMENTATION_RESPONSE, _INTELLIGENCE_RESPONSE, _ATTRIBUTION_RESPONSE, mock_tips]
+        _TASK_LEVEL_SUMMARY = "Agent fixes an authentication bug and verifies the fix works correctly."
+        _TASK_LEVEL_TIPS = json.dumps({"tips": []})
+
+        # Order: segmentation, subtask intelligence, subtask attribution, subtask tips,
+        #        task-level summary (haiku), task-level intelligence, task-level attribution, task-level tips
+        responses = [
+            _SEGMENTATION_RESPONSE,
+            _INTELLIGENCE_RESPONSE, _ATTRIBUTION_RESPONSE, mock_tips,
+            _TASK_LEVEL_SUMMARY,
+            _INTELLIGENCE_RESPONSE, _ATTRIBUTION_RESPONSE, _TASK_LEVEL_TIPS,
+        ]
 
         runner = CliRunner()
         with patch("fm.llm.subprocess.run") as mock_run:
@@ -71,7 +81,7 @@ class TestFullPipeline:
                 with patch.dict("os.environ", {"VOYAGE_API_KEY": "test"}):
                     result = runner.invoke(
                         main,
-                        ["extract", str(sample_jsonl), "--db", str(db_path)],
+                        ["extract", str(sample_jsonl), "--db", str(db_path), "--min-turns=1"],
                     )
 
         assert result.exit_code == 0

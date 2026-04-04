@@ -47,6 +47,33 @@ def _parse_segmentation(raw: str, turns: list[Turn], *, session_id: str) -> list
     return subtasks
 
 
+def summarize_session(turns: list[Turn], *, model: str = "haiku") -> str:
+    """Produce a 1-2 sentence synthesized summary of what a session accomplished.
+
+    Used as the generalized_description for task-level tip extraction.
+    """
+    snippets = "\n".join(
+        f"[Turn {i}] {t.user_prompt[:150]}"
+        + (f" → tools: {[a.tool_name for a in t.actions[:4]]}" if t.actions else "")
+        for i, t in enumerate(turns[:30])
+    )
+    prompt = f"""\
+Summarize what this Claude Code session accomplished in 1-2 sentences.
+Be specific about what was built, fixed, debugged, or investigated.
+Use active voice. Focus on outcomes, not individual steps.
+Do not mention turn numbers, tool names, or file paths.
+
+## Session (truncated to first 30 turns)
+{snippets}
+
+Return only the summary — no preamble, no extra text."""
+
+    result = call_claude(prompt, model=model)
+    if result is None:
+        return turns[0].user_prompt[:200] if turns else "Agent session"
+    return result.strip()
+
+
 def _whole_session_subtask(turns: list[Turn], session_id: str) -> Subtask:
     """Fallback: treat the entire session as a single subtask."""
     return Subtask(

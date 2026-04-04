@@ -11,7 +11,7 @@ from fm.intelligence import extract_intelligence
 from fm.llm import call_claude
 from fm.models import Subtask, SubtaskAttribution, SubtaskIntelligence, Tip, Turn
 from fm.prompts.tips_gen import build_tips_generation_prompt
-from fm.segmenter import segment_session
+from fm.segmenter import segment_session, summarize_session
 
 
 def _parse_tips_json(
@@ -39,6 +39,7 @@ def _parse_tips_json(
             tip = Tip(
                 category=item["category"],
                 content=item["content"],
+                title=item.get("title", ""),
                 purpose=item.get("purpose", ""),
                 steps=item.get("steps", []),
                 trigger=item.get("trigger", ""),
@@ -111,6 +112,49 @@ def _process_subtask(
     return tips
 
 
+def _process_session_task_level(
+    turns: list[Turn],
+    *,
+    session_id: str,
+    project: str,
+    model: str,
+    counter: list[int],
+    total: int,
+    lock: threading.Lock,
+) -> list[Tip]:
+    """Run the full 3-stage pipeline on the entire session as a single unit (task-level tips)."""
+    summary = summarize_session(turns, model="haiku")
+    subtask = Subtask(
+        id="task_level",
+        session_id=session_id,
+        raw_description=summary,
+        generalized_description=summary,
+        turns=turns,
+    )
+
+    with lock:
+        counter[0] += 1
+        n = counter[0]
+    print(f"  [{n}/{total}] [task-level] {summary[:60]}...", file=sys.stderr)
+
+    intelligence = extract_intelligence(subtask, model=model)
+    if intelligence is None:
+        print(f"  [{n}/{total}] Warning: intelligence extraction failed for task-level", file=sys.stderr)
+        return []
+
+    attribution = extract_attribution(subtask, intelligence, model=model)
+    if attribution is None:
+        print(f"  [{n}/{total}] Warning: attribution failed for task-level", file=sys.stderr)
+        return []
+
+    tips = _extract_tips_from_subtask(
+        subtask, intelligence, attribution,
+        session_id=session_id, project=project, model=model,
+    )
+    print(f"  [{n}/{total}] done — {len(tips)} tip(s)", file=sys.stderr)
+    return tips
+
+
 def extract_tips_from_session(
     turns: list[Turn],
     *,
@@ -129,18 +173,24 @@ def extract_tips_from_session(
 
     counter: list[int] = [0]
     lock = threading.Lock()
-    total = len(subtasks)
+    total = len(subtasks) + 1  # +1 for task-level pass
 
     all_tips: list[Tip] = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
+        futures = [
             executor.submit(
                 _process_subtask, subtask,
                 session_id=session_id, project=project, model=model,
                 counter=counter, total=total, lock=lock,
-            ): subtask
+            )
             for subtask in subtasks
-        }
+        ]
+        futures.append(executor.submit(
+            _process_session_task_level, turns,
+            session_id=session_id, project=project, model=model,
+            counter=counter, total=total, lock=lock,
+        ))
+
         for future in as_completed(futures):
             all_tips.extend(future.result())
 

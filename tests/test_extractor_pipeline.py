@@ -37,14 +37,18 @@ TIPS_RESPONSE = json.dumps({
 
 def test_full_pipeline_produces_tips():
     turns = [Turn(user_prompt="fix SSL error", response_text="fixed by adding cert")]
-    responses = [SEGMENTATION_RESPONSE, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, TIPS_RESPONSE]
+    _TASK_SUMMARY = "Agent debugs an SSL certificate verification failure."
+    responses = [
+        SEGMENTATION_RESPONSE, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, TIPS_RESPONSE,
+        _TASK_SUMMARY, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, json.dumps({"tips": []}),
+    ]
     with patch("fm.llm.subprocess.run") as mock_run:
         mock_run.side_effect = [
             type("R", (), {"returncode": 0, "stdout": r, "stderr": ""})()
             for r in responses
         ]
         tips = extract_tips_from_session(
-            turns, session_id="sess-1", project="test-project", model="sonnet"
+            turns, session_id="sess-1", project="test-project", model="sonnet", max_workers=1
         )
     assert len(tips) == 1
     assert tips[0].category == "recovery"

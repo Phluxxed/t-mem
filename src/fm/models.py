@@ -59,6 +59,7 @@ class Tip:
     source_session_id: str
     source_project: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = ""
     negative_example: str | None = None
     task_context: str | None = None
     subtask_id: str | None = None

@@ -23,9 +23,10 @@ def retrieve_tips(
     query: str,
     store: TipStore,
     *,
-    threshold: float = 0.35,
+    threshold: float = 0.6,
     top_k: int = 5,
     provider: str | None = None,
+    session_id: str | None = None,
 ) -> list[Tip]:
     """Retrieve relevant tips for a query using cosine similarity."""
     if provider is None:
@@ -40,8 +41,12 @@ def retrieve_tips(
     if not stored:
         return []
 
+    already_injected = store.get_injected_tip_ids(session_id) if session_id else set()
+
     scored: list[tuple[float, dict]] = []
     for tip_row in stored:
+        if tip_row["id"] in already_injected:
+            continue
         score = _cosine_similarity(query_result.vector, tip_row["embedding"])
         if score >= threshold:
             scored.append((score, tip_row))
@@ -49,7 +54,11 @@ def retrieve_tips(
     scored.sort(key=lambda x: x[0], reverse=True)
     scored = scored[:top_k]
 
-    return [store._row_to_tip(row) for _, row in scored]
+    tips = []
+    for score, row in scored:
+        store.log_retrieval(row["id"], query, score, session_id=session_id)
+        tips.append(store.get_tip(row["id"]))
+    return [t for t in tips if t is not None]
 
 
 def format_tips(tips: list[Tip]) -> str:

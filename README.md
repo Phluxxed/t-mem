@@ -71,11 +71,11 @@ fm baseline                       # Capture pre-injection error/recovery metrics
 
 ## Hook Integration
 
-The `hooks/` directory contains shell scripts for Claude Code integration. Copy them to `~/.claude/hooks/` and make them executable:
+The `.claude/hooks/` directory contains shell scripts for Claude Code integration. Copy them to `~/.claude/hooks/` and make them executable:
 
 ```bash
-cp hooks/future-memory-retrieve.sh ~/.claude/hooks/
-cp hooks/future-memory-pre-compact.sh ~/.claude/hooks/
+cp .claude/hooks/future-memory-retrieve.sh ~/.claude/hooks/
+cp .claude/hooks/future-memory-pre-compact.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/future-memory-retrieve.sh
 chmod +x ~/.claude/hooks/future-memory-pre-compact.sh
 ```

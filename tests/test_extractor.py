@@ -51,7 +51,11 @@ class TestExtractTipsFromSession:
             )
         ]
 
-        responses = [SEGMENTATION_RESPONSE, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, mock_tips_json]
+        _TASK_SUMMARY = "Agent fixes an authentication bug."
+        responses = [
+            SEGMENTATION_RESPONSE, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, mock_tips_json,
+            _TASK_SUMMARY, INTELLIGENCE_RESPONSE, ATTRIBUTION_RESPONSE, json.dumps({"tips": []}),
+        ]
         with patch("fm.llm.subprocess.run") as mock_run:
             mock_run.side_effect = [
                 type("R", (), {"returncode": 0, "stdout": r, "stderr": ""})()
