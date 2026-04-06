@@ -4,6 +4,18 @@ Trajectory-informed memory generation for self-improving agent systems. Extracts
 
 Based on [arXiv:2603.10600](https://arxiv.org/abs/2603.10600) (IBM Research, Feb 2026).
 
+## Example
+
+An end-user flow in Claude Code looks like this:
+
+1. You work on a task and eventually discover something useful, like "restart the dev server after regenerating Prisma client or tests will keep using the old schema."
+2. When the session compacts, the `PreCompact` hook runs `fm extract` on that session transcript and saves the distilled tip to the local tip database.
+3. A day later, you start a new prompt such as "fix the failing auth tests after the schema change".
+4. Before Claude sees your prompt, the `UserPromptSubmit` hook runs `fm hook-retrieve` and finds the earlier Prisma tip because it matches the new task.
+5. That tip is injected into the prompt context, so Claude starts with the relevant fix in mind instead of rediscovering it from scratch.
+
+In short: useful lessons from previous sessions are automatically extracted after the session, then automatically surfaced at the start of future related tasks.
+
 ## Setup
 
 ```bash
