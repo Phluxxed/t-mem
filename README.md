@@ -4,6 +4,10 @@ Trajectory-informed memory generation for self-improving agent systems. Extracts
 
 Based on [arXiv:2603.10600](https://arxiv.org/abs/2603.10600) (IBM Research, Feb 2026).
 
+> **Built for Claude Code.** The extraction pipeline parses Claude Code's JSONL session format, and the hook integration uses Claude Code's `UserPromptSubmit` and `PreCompact` hooks. Adapting to another agent requires replacing the session parser (`src/fm/parser.py`) and the hook scripts — the tip store, embeddings, and retrieval logic are agent-agnostic.
+
+> **Your data stays local.** The tip database lives at `~/.future_memory/tips.db` on your machine. The only external call is to [Voyage AI](https://www.voyageai.com/) for generating embeddings — no session content or tips are sent anywhere else.
+
 ## Example
 
 An end-user flow in Claude Code looks like this:
@@ -16,15 +20,24 @@ An end-user flow in Claude Code looks like this:
 
 In short: useful lessons from previous sessions are automatically extracted after the session, then automatically surfaced at the start of future related tasks.
 
+## Prerequisites
+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/) for environment management
+- [Claude Code](https://claude.ai/code) (for hook integration)
+- A [Voyage AI](https://www.voyageai.com/) API key (free tier is sufficient)
+
 ## Setup
 
 ```bash
-# Install
+# 1. Clone and install
+git clone https://github.com/Phluxxed/t-mem.git
+cd t-mem
 uv venv .venv
 source .venv/bin/activate
 uv pip install -e ".[dev]"
 
-# Configure environment
+# 2. Configure environment
 cp .env.example .env
 # Edit .env and set VOYAGE_API_KEY=your-key-here
 ```
