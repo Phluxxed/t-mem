@@ -8,7 +8,6 @@ Implementation of trajectory-informed memory generation for self-improving LLM a
 |------|-------|
 | System architecture, tech stack, dependency rules | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Business context, domain terminology | [docs/DOMAIN.md](docs/DOMAIN.md) |
-| Compliance and audit requirements | [docs/SECURITY.md](docs/SECURITY.md) |
 | Coding standards and taste invariants | [docs/QUALITY.md](docs/QUALITY.md) |
 | Technical design specs | [docs/design-docs/index.md](docs/design-docs/index.md) |
 | Product specifications | [docs/product-specs/index.md](docs/product-specs/index.md) |
