@@ -3,8 +3,30 @@ from __future__ import annotations
 import numpy as np
 
 from fm.embeddings import embed_text
+from fm.llm import call_claude
 from fm.models import Tip
 from fm.store import TipStore
+
+_ABSTRACT_QUERY_PROMPT = """\
+Rewrite the following task description, replacing all specific names — project \
+names, company names, system names, file names, identifiers, product names — \
+with generic equivalents. Preserve the core action and intent exactly.
+
+Examples:
+- "fix SSL cert error in future_memory Voyage API calls" → "fix SSL certificate verification error in HTTP client"
+- "implement TLC lottery reconciliation pipeline" → "implement a data reconciliation pipeline"
+- "debug why tips.db migrations fail on startup" → "debug why database migrations fail on startup"
+
+Task: {query}
+
+Return only the rewritten description — no preamble, no extra text."""
+
+
+def abstract_query(query: str) -> str:
+    """Strip entity names from a query so it aligns with generalized tip embeddings."""
+    prompt = _ABSTRACT_QUERY_PROMPT.format(query=query)
+    result = call_claude(prompt, model="haiku")
+    return result.strip() if result else query
 
 
 def _cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -33,7 +55,8 @@ def retrieve_tips(
         from fm.embeddings import get_available_provider
         provider = get_available_provider()
 
-    query_result = embed_text(query, provider=provider)
+    abstracted = abstract_query(query)
+    query_result = embed_text(abstracted, provider=provider)
     if query_result is None:
         return []
 
@@ -56,7 +79,7 @@ def retrieve_tips(
 
     tips = []
     for score, row in scored:
-        store.log_retrieval(row["id"], query, score, session_id=session_id)
+        store.log_retrieval(row["id"], query, score, session_id=session_id)  # log raw query
         tips.append(store.get_tip(row["id"]))
     return [t for t in tips if t is not None]
 

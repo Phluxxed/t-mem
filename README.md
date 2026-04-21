@@ -6,7 +6,7 @@ Based on [arXiv:2603.10600](https://arxiv.org/abs/2603.10600) (IBM Research, Feb
 
 > **Built for Claude Code.** The extraction pipeline parses Claude Code's JSONL session format, and the hook integration uses Claude Code's `UserPromptSubmit` and `PreCompact` hooks. Adapting to another agent requires replacing the session parser (`src/fm/parser.py`) and the hook scripts — the tip store, embeddings, and retrieval logic are agent-agnostic.
 
-> **Your data stays local.** The tip database lives at `~/.future_memory/tips.db` on your machine. The only external call is to [Voyage AI](https://www.voyageai.com/) for generating embeddings — no session content or tips are sent anywhere else.
+> **Your data stays local.** The tip database lives at `~/.future_memory/tips.db` on your machine. Two things are sent to [Voyage AI](https://www.voyageai.com/) for embedding: generalized tip descriptions (entity names stripped by the extraction pipeline) and abstracted retrieval queries (entity names stripped by a Haiku call before embedding). Raw session content, raw prompts, and tip text are never sent externally.
 
 ## Example
 

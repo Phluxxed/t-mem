@@ -63,6 +63,12 @@ Be specific about what was built, fixed, debugged, or investigated.
 Use active voice. Focus on outcomes, not individual steps.
 Do not mention turn numbers, tool names, or file paths.
 
+Generalize all entity names so the summary transfers to other contexts:
+- Project names → "the project" or "the target system"
+- Company or product names → omit or use "the application"
+- Specific file names → "the configuration file", "the database", etc.
+- Specific error messages or IDs → describe the error type generically
+
 ## Session (truncated to first 30 turns)
 {snippets}
 
