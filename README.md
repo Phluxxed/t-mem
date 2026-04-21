@@ -69,6 +69,7 @@ fm retrieve "your task description"
 fm tips list                      # List all tips (optionally --category strategy|recovery|optimization)
 fm tips show <id-prefix>          # Show full detail for a tip
 fm tips embed                     # Backfill embeddings for tips missing them
+fm tips embed --force             # Re-embed all tips with abstraction (run once after upgrading)
 fm tips consolidate               # Deduplicate near-identical tips via LLM synthesis
 fm tips consolidate --dry-run     # Preview merges without applying
 fm tips backfill-titles           # Generate titles for untitled tips

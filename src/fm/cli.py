@@ -3,16 +3,20 @@ from __future__ import annotations
 import json
 import sys
 from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from rich.console import Console
 from pathlib import Path
 
 import click
 
-from fm.baseline import compute_baseline
+from fm.baseline import compute_baseline, compute_snapshot
 from fm.embeddings import embed_texts_batch, get_available_provider
 from fm.extractor import extract_tips_from_session
 from fm.llm import call_claude
 from fm.parser import parse_session
-from fm.retriever import format_tips, retrieve_tips
+from fm.retriever import abstract_query, format_tips, retrieve_tips
 from fm.store import TipStore
 
 _DEFAULT_DB = Path.home() / ".future_memory" / "tips.db"
@@ -149,6 +153,15 @@ def extract_all(db: Path, model: str, min_turns: int, since: str | None) -> None
                 continue
 
             last_turn_count = store.get_last_turn_count(session_id)
+
+            # Guard: session was extracted before watermarks were introduced (last_turn_count=0
+            # but already in processed_sessions). Repair the watermark and skip re-extraction.
+            if last_turn_count == 0 and store.is_session_processed(session_id):
+                store.mark_session_processed(
+                    session_id, str(jsonl_file), tip_count=0, last_turn_count=len(turns)
+                )
+                continue
+
             new_turns = turns[last_turn_count:]
             if not new_turns:
                 continue
@@ -292,7 +305,8 @@ def tips_show(tip_id: str, db: Path) -> None:
 
 @tips.command("embed")
 @click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
-def tips_embed(db: Path) -> None:
+@click.option("--force", is_flag=True, help="Re-embed all tips, abstracting keys first. Use after upgrading the pipeline.")
+def tips_embed(db: Path, force: bool) -> None:
     """Backfill embeddings for tips that are missing them."""
     store = TipStore(db)
     all_tips = store.list_tips()
@@ -301,36 +315,43 @@ def tips_embed(db: Path) -> None:
         click.echo("No embedding provider available. Set VOYAGE_API_KEY or check network.")
         return
 
-    unembedded = [
-        tip for tip in all_tips
-        if not (store.get_tip_with_embedding(tip.id) or {}).get("embedding")
-    ]
+    if force:
+        to_embed = all_tips
+        click.echo(f"Re-embedding {len(to_embed)} tip(s) with abstraction (one Haiku call per tip)...")
+    else:
+        to_embed = [
+            tip for tip in all_tips
+            if not (store.get_tip_with_embedding(tip.id) or {}).get("embedding")
+        ]
+        if not to_embed:
+            click.echo("All tips already have embeddings.")
+            return
+        click.echo(f"Embedding {len(to_embed)} tip(s) using {provider}...")
 
-    if not unembedded:
-        click.echo("All tips already have embeddings.")
-        return
-
-    click.echo(f"Embedding {len(unembedded)} tip(s) using {provider}...")
-    texts = [store.get_embedding_key(tip) for tip in unembedded]
-    results = embed_texts_batch(texts, provider=provider)
-
+    import struct
     updated = 0
     failed = 0
-    for tip, embedding_result in zip(unembedded, results):
+    for i, tip in enumerate(to_embed, 1):
+        raw_key = store.get_embedding_key(tip)
+        key = abstract_query(raw_key) if force else raw_key
+        if force:
+            click.echo(f"  [{i}/{len(to_embed)}] {key[:70]}")
+        result = embed_texts_batch([key], provider=provider)
+        embedding_result = result[0] if result else None
         if embedding_result:
             store._conn.execute(
                 "UPDATE tips SET embedding = ?, embedding_provider = ? WHERE id = ?",
                 (
-                    __import__("struct").pack(f"{len(embedding_result.vector)}f", *embedding_result.vector),
+                    struct.pack(f"{len(embedding_result.vector)}f", *embedding_result.vector),
                     embedding_result.provider,
                     tip.id,
                 ),
             )
+            store._conn.commit()
             updated += 1
         else:
-            click.echo(f"  Warning: failed to embed tip {tip.id} ({store.get_embedding_key(tip)[:60]})", err=True)
+            click.echo(f"  Warning: failed to embed tip {tip.id} ({key[:60]})", err=True)
             failed += 1
-    store._conn.commit()
 
     msg = f"Embedded {updated} tip(s)."
     if failed:
@@ -685,3 +706,222 @@ def baseline(before: str, sample: int, output: Path) -> None:
     click.echo(f"  Session length p50/p90:  {m['session_length_p50']} / {m['session_length_p90']}")
     click.echo(f"  Repeated op rate:        {m['repeated_op_rate']:.1%}")
     click.echo(f"Saved to {output}")
+
+
+_COMPARISON_METRICS: list[tuple[str, str, str, int]] = [
+    ("Error rate",        "error_rate",              "percent", -1),
+    ("Recovery rate",     "recovery_rate",           "percent", +1),
+    ("Avg retries/error", "avg_retries_after_error", "float",   -1),
+    ("Avg actions/turn",  "avg_actions_per_turn",    "float",   -1),
+    ("Repeated op rate",  "repeated_op_rate",        "percent", -1),
+    ("Avg turns/session", "avg_turns_per_session",   "float",    0),
+]
+
+
+def _render_comparison_table(
+    console: "Any",
+    *,
+    title: str,
+    col_a: str,
+    metrics_a: dict,
+    col_b: str,
+    metrics_b: dict,
+) -> None:
+    """Render a two-column metric comparison table to the console."""
+    from rich.table import Table
+    from rich import box
+    from rich.text import Text
+
+    t = Table(box=box.SIMPLE, show_header=True, padding=(0, 2))
+    t.add_column("Metric", style="bold", width=22)
+    t.add_column(col_a, justify="right", width=12)
+    t.add_column(col_b, justify="right", width=12)
+    t.add_column("Change", justify="right", width=10)
+    t.add_column("", width=2)
+
+    for label, key, fmt, direction in _COMPARISON_METRICS:
+        a_val: float = metrics_a.get(key, 0.0)
+        b_val: float = metrics_b.get(key, 0.0)
+        a_str = f"{a_val:.1%}" if fmt == "percent" else f"{a_val:.2f}"
+        b_str = f"{b_val:.1%}" if fmt == "percent" else f"{b_val:.2f}"
+
+        if a_val == 0:
+            delta_str = "—"
+            indicator: str | Text = ""
+        else:
+            delta_pct = (b_val - a_val) / a_val * 100
+            sign = "+" if delta_pct >= 0 else ""
+            delta_str = f"{sign}{delta_pct:.1f}%"
+            if direction == 0 or delta_pct == 0:
+                indicator = ""
+            elif (delta_pct < 0 and direction == -1) or (delta_pct > 0 and direction == +1):
+                indicator = Text("✓", style="green")
+            else:
+                indicator = Text("✗", style="red")
+
+        t.add_row(label, a_str, b_str, delta_str, indicator)
+
+    console.rule(f"[bold]{title}[/bold]")
+    console.print(t)
+    console.print(
+        f"[dim]Session length p50/p90 — {col_a}: "
+        f"{metrics_a['session_length_p50']}/{metrics_a['session_length_p90']}   "
+        f"{col_b}: {metrics_b['session_length_p50']}/{metrics_b['session_length_p90']}[/dim]"
+    )
+    console.print()
+
+
+@main.command()
+@click.option("--baseline", "baseline_path", type=click.Path(path_type=Path), default=_DEFAULT_BASELINE,
+              help="Path to baseline JSON (default: ~/.future_memory/baseline.json).")
+@click.option("--after", default=_INJECTION_START,
+              help="Start of post-injection window (YYYY-MM-DD). Defaults to baseline injection start date.")
+@click.option("--sample", default=500, help="Max post-injection sessions to sample (0 = all).")
+@click.option("--min-turns", default=5, help="Exclude sessions shorter than this (default: 5, matches extract-all).")
+@click.option("--processed-only", is_flag=True, default=False,
+              help="Only compare sessions in the processed_sessions DB (future_memory-extracted sessions).")
+def compare(baseline_path: Path, after: str, sample: int, min_turns: int, processed_only: bool) -> None:
+    """Compare current session metrics against the saved baseline."""
+    from rich.console import Console
+
+    if not baseline_path.exists():
+        click.echo(f"No baseline found at {baseline_path}. Run 'fm baseline' first.", err=True)
+        return
+
+    try:
+        base = json.loads(baseline_path.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        click.echo(f"Failed to read baseline: {e}", err=True)
+        return
+
+    try:
+        cutoff = datetime.strptime(after, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        click.echo(f"Invalid --after date '{after}'. Use YYYY-MM-DD format.", err=True)
+        return
+
+    explicit_files: list[Path] | None = None
+    if processed_only:
+        store = TipStore(_DEFAULT_DB)
+        rows = store._conn.execute(
+            "SELECT jsonl_path FROM processed_sessions WHERE processed_at >= ? AND tip_count > 0",
+            (cutoff.isoformat(),),
+        ).fetchall()
+        explicit_files = [Path(r[0]) for r in rows if Path(r[0]).exists()]
+        click.echo(
+            f"--processed-only: {len(explicit_files)} extracted sessions found after {after} "
+            f"(sample={sample or 'all'}, min-turns={min_turns})..."
+        )
+    else:
+        click.echo(f"Computing current metrics for sessions after {after} (sample={sample or 'all'}, min-turns={min_turns})...")
+
+    try:
+        current = compute_snapshot(after=cutoff, sample=sample, min_turns=min_turns, files=explicit_files)
+    except ValueError as e:
+        click.echo(f"Error: {e}", err=True)
+        return
+
+    console = Console()
+    console.print()
+    console.print(
+        f"[dim]Baseline:[/dim] pre-{base['cutoff_date']} ({base['sessions_analyzed']} sessions)   "
+        f"[dim]Current:[/dim] post-{after} ({current['sessions_analyzed']} sessions)"
+    )
+    console.print()
+    _render_comparison_table(
+        console,
+        title="Baseline vs Current",
+        col_a=f"Baseline",
+        metrics_a=base["metrics"],
+        col_b=f"Current",
+        metrics_b=current["metrics"],
+    )
+
+
+@main.command("injection-effect")
+@click.option("--db", type=click.Path(path_type=Path), default=_DEFAULT_DB)
+@click.option("--after", default=_INJECTION_START,
+              help="Only consider sessions modified after this date (YYYY-MM-DD).")
+@click.option("--min-turns", default=5, help="Exclude sessions shorter than this (default: 5).")
+@click.option("--sample", default=0, help="Max sessions per group to sample (0 = all).")
+def injection_effect(db: Path, after: str, min_turns: int, sample: int) -> None:
+    """Compare metrics: sessions where a tip was injected vs sessions where nothing was retrieved."""
+    from rich.console import Console
+    from fm.baseline import _aggregate_sessions, _metrics_from_agg, _sample_files
+
+    try:
+        cutoff = datetime.strptime(after, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        click.echo(f"Invalid --after date '{after}'. Use YYYY-MM-DD format.", err=True)
+        return
+
+    store = TipStore(db)
+
+    # Sessions that had at least one tip retrieved (tip fired)
+    injected_ids: set[str] = {
+        r[0] for r in store._conn.execute(
+            "SELECT DISTINCT session_id FROM retrievals WHERE session_id IS NOT NULL"
+        ).fetchall()
+    }
+
+    # All sessions extracted by future_memory, split by whether a tip fired
+    all_processed = store._conn.execute(
+        "SELECT session_id, jsonl_path FROM processed_sessions WHERE tip_count > 0"
+    ).fetchall()
+
+    injected_files: list[Path] = []
+    not_injected_files: list[Path] = []
+
+    for session_id, jsonl_path in all_processed:
+        p = Path(jsonl_path)
+        if not p.exists():
+            continue
+        mtime = datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc)
+        if mtime < cutoff:
+            continue
+        if session_id in injected_ids:
+            injected_files.append(p)
+        else:
+            not_injected_files.append(p)
+
+    click.echo(
+        f"Tip injected: {len(injected_files)} sessions   "
+        f"No tip retrieved: {len(not_injected_files)} sessions"
+    )
+
+    if not injected_files:
+        click.echo("No injected sessions found in this window.", err=True)
+        return
+    if not not_injected_files:
+        click.echo("No non-injected sessions found — every session had a tip retrieved.", err=True)
+        return
+
+    inj_agg = _aggregate_sessions(_sample_files(injected_files, sample, seed=42), min_turns=min_turns)
+    ctrl_agg = _aggregate_sessions(_sample_files(not_injected_files, sample, seed=42), min_turns=min_turns)
+
+    if inj_agg["sessions"] == 0:
+        click.echo("No qualifying injected sessions after min-turns filter.", err=True)
+        return
+    if ctrl_agg["sessions"] == 0:
+        click.echo("No qualifying non-injected sessions after min-turns filter.", err=True)
+        return
+
+    inj_metrics = _metrics_from_agg(inj_agg)
+    ctrl_metrics = _metrics_from_agg(ctrl_agg)
+
+    console = Console()
+    console.print()
+    console.print(
+        f"[dim]No tip:[/dim] {ctrl_agg['sessions']} sessions   "
+        f"[dim]Tip injected:[/dim] {inj_agg['sessions']} sessions   "
+        f"[dim](post {after}, min {min_turns} turns)[/dim]"
+    )
+    console.print()
+    _render_comparison_table(
+        console,
+        title="Injection Effect",
+        col_a="No tip",
+        metrics_a=ctrl_metrics,
+        col_b="Tip injected",
+        metrics_b=inj_metrics,
+    )
