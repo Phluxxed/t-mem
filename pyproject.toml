@@ -9,6 +9,7 @@ dependencies = [
     "requests>=2.31",
     "numpy>=1.26",
     "rich>=13.0",
+    "claude-code-sdk>=0.0.25",
 ]
 
 [project.optional-dependencies]

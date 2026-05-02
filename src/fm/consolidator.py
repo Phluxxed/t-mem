@@ -56,14 +56,23 @@ class Cluster:
     max_similarity: float
 
 
-def find_clusters(store: TipStore, threshold: float = 0.88) -> list[Cluster]:
-    """Find groups of tips with pairwise cosine similarity >= threshold."""
+def find_clusters(
+    store: TipStore,
+    threshold: float = 0.88,
+    tip_ids: set[str] | None = None,
+) -> list[Cluster]:
+    """Find groups of tips with pairwise cosine similarity >= threshold.
+
+    If tip_ids is provided, only tips in that set are considered.
+    """
     provider = get_available_provider()
     if not provider:
         print("Warning: no embedding provider available, cannot cluster tips.", file=sys.stderr)
         return []
 
     rows = store.get_tips_with_embeddings(provider)
+    if tip_ids is not None:
+        rows = [r for r in rows if r["id"] in tip_ids]
     if len(rows) < 2:
         return []
 

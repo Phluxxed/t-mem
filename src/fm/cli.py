@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import sys
 from datetime import datetime, timedelta, timezone
@@ -110,7 +111,8 @@ def extract(jsonl_path: Path, db: Path, model: str, min_turns: int, max_turns: i
 @click.option("--model", default="sonnet", help="Claude model for extraction.")
 @click.option("--min-turns", default=5, help="Skip sessions with fewer turns than this.")
 @click.option("--since", default=None, help="Only process sessions modified within this window, e.g. '30d', '2w', '6h'.")
-def extract_all(db: Path, model: str, min_turns: int, since: str | None) -> None:
+@click.option("--workers", default=4, help="Max parallel session extractions.")
+def extract_all(db: Path, model: str, min_turns: int, since: str | None, workers: int) -> None:
     """Process all unprocessed Claude Code sessions."""
     projects_dir = Path.home() / ".claude" / "projects"
     if not projects_dir.exists():
@@ -125,10 +127,12 @@ def extract_all(db: Path, model: str, min_turns: int, since: str | None) -> None
             return
 
     store = TipStore(db)
-    total_tips = 0
-    processed = 0
     skipped_short = 0
     skipped_old = 0
+
+    # --- Discovery phase (sequential, fast) ---
+    # Collect sessions to process and handle trivial cases (empty/watermark-only) immediately.
+    pending: list[tuple[str, str, str, list, int]] = []  # (session_id, file_path, project, new_turns, total_turns)
 
     for project_dir in projects_dir.iterdir():
         if not project_dir.is_dir():
@@ -154,8 +158,7 @@ def extract_all(db: Path, model: str, min_turns: int, since: str | None) -> None
 
             last_turn_count = store.get_last_turn_count(session_id)
 
-            # Guard: session was extracted before watermarks were introduced (last_turn_count=0
-            # but already in processed_sessions). Repair the watermark and skip re-extraction.
+            # Guard: session extracted before watermarks were introduced.
             if last_turn_count == 0 and store.is_session_processed(session_id):
                 store.mark_session_processed(
                     session_id, str(jsonl_file), tip_count=0, last_turn_count=len(turns)
@@ -166,32 +169,61 @@ def extract_all(db: Path, model: str, min_turns: int, since: str | None) -> None
             if not new_turns:
                 continue
 
-            click.echo(f"Processing {project_dir.name}/{jsonl_file.name} ({len(new_turns)} new / {len(turns)} total)...")
+            pending.append((session_id, str(jsonl_file), project_dir.name, new_turns, len(turns)))
 
-            project = project_dir.name
-            tips = extract_tips_from_session(
-                new_turns, session_id=session_id, project=project, model=model
-            )
+    if not pending:
+        click.echo("No new sessions to process.")
+        return
 
-            provider = get_available_provider()
-            missing_embeddings = 0
-            if tips:
-                texts = [store.get_embedding_key(tip) for tip in tips]
-                embeddings = embed_texts_batch(texts, provider=provider)
-                for tip, emb in zip(tips, embeddings):
-                    if emb:
-                        store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
-                    else:
-                        store.add_tip(tip)
-                        missing_embeddings += 1
-                if missing_embeddings:
-                    click.echo(f"  Warning: {missing_embeddings}/{len(tips)} tips saved without embeddings.")
+    click.echo(f"Found {len(pending)} session(s) to process (workers={workers}).")
 
-            store.mark_session_processed(
-                session_id, str(jsonl_file), tip_count=len(tips), last_turn_count=len(turns)
-            )
-            total_tips += len(tips)
-            processed += 1
+    # --- Extraction phase (parallel, no DB writes) ---
+    async def _gather_extractions() -> list[Any]:
+        sem = asyncio.Semaphore(workers)
+
+        async def _extract(session_id: str, file_path: str, project: str, new_turns: list, total_turns: int) -> tuple:
+            async with sem:
+                click.echo(f"  Starting {Path(file_path).name} ({len(new_turns)} turns)...")
+                tips = await asyncio.to_thread(
+                    extract_tips_from_session,
+                    new_turns, session_id=session_id, project=project, model=model,
+                )
+                return (session_id, file_path, tips, total_turns)
+
+        return await asyncio.gather(*[_extract(*s) for s in pending], return_exceptions=True)
+
+    results = asyncio.run(_gather_extractions())
+
+    # --- Write phase (sequential, all DB writes) ---
+    provider = get_available_provider()
+    total_tips = 0
+    processed = 0
+
+    for item in results:
+        if isinstance(item, Exception):
+            click.echo(f"  Warning: session extraction failed: {item}", err=True)
+            continue
+
+        session_id, file_path, tips, total_turns = item
+        missing_embeddings = 0
+        if tips:
+            texts = [store.get_embedding_key(tip) for tip in tips]
+            embeddings = embed_texts_batch(texts, provider=provider)
+            for tip, emb in zip(tips, embeddings):
+                if emb:
+                    store.add_tip(tip, embedding=emb.vector, embedding_provider=emb.provider)
+                else:
+                    store.add_tip(tip)
+                    missing_embeddings += 1
+            if missing_embeddings:
+                click.echo(f"  Warning: {missing_embeddings}/{len(tips)} tips saved without embeddings.")
+
+        store.mark_session_processed(
+            session_id, file_path, tip_count=len(tips), last_turn_count=total_turns
+        )
+        total_tips += len(tips)
+        processed += 1
+        click.echo(f"  Done {Path(file_path).name} — {len(tips)} tip(s).")
 
     msg = f"Processed {processed} sessions, extracted {total_tips} tips total."
     if skipped_short:
@@ -316,8 +348,17 @@ def tips_embed(db: Path, force: bool) -> None:
         return
 
     if force:
-        to_embed = all_tips
-        click.echo(f"Re-embedding {len(to_embed)} tip(s) with abstraction (one Haiku call per tip)...")
+        to_embed = [
+            tip for tip in all_tips
+            if not store._conn.execute(
+                "SELECT embedding_abstracted FROM tips WHERE id = ?", (tip.id,)
+            ).fetchone()[0]
+        ]
+        already_done = len(all_tips) - len(to_embed)
+        msg = f"Re-embedding {len(to_embed)} tip(s) with abstraction (one Haiku call per tip)..."
+        if already_done:
+            msg += f" ({already_done} already abstracted, skipping)"
+        click.echo(msg)
     else:
         to_embed = [
             tip for tip in all_tips
@@ -340,10 +381,11 @@ def tips_embed(db: Path, force: bool) -> None:
         embedding_result = result[0] if result else None
         if embedding_result:
             store._conn.execute(
-                "UPDATE tips SET embedding = ?, embedding_provider = ? WHERE id = ?",
+                "UPDATE tips SET embedding = ?, embedding_provider = ?, embedding_abstracted = ? WHERE id = ?",
                 (
                     struct.pack(f"{len(embedding_result.vector)}f", *embedding_result.vector),
                     embedding_result.provider,
+                    1 if force else 0,
                     tip.id,
                 ),
             )
@@ -365,12 +407,24 @@ def tips_embed(db: Path, force: bool) -> None:
 @click.option("--dry-run", is_flag=True, help="Show proposed merges without applying.")
 @click.option("--model", default="sonnet", help="Claude model for merge decisions.")
 @click.option("--limit", default=0, help="Cap number of clusters to process (0 = all).")
-def tips_consolidate(db: Path, threshold: float, dry_run: bool, model: str, limit: int) -> None:
+@click.option("--top-n", default=0, help="Restrict candidates to the top N tips by retrieval count (0 = all).")
+@click.option("--concurrency", default=4, help="Max parallel LLM calls for merge decisions.")
+def tips_consolidate(db: Path, threshold: float, dry_run: bool, model: str, limit: int, top_n: int, concurrency: int) -> None:
     """Deduplicate near-identical tips via LLM-guided synthesis."""
     from fm.consolidator import find_clusters, decide_merge, apply_merge
 
     store = TipStore(db)
-    clusters = find_clusters(store, threshold=threshold)
+
+    tip_ids: set[str] | None = None
+    if top_n:
+        rows = store._conn.execute(
+            "SELECT tip_id FROM retrievals GROUP BY tip_id ORDER BY COUNT(*) DESC LIMIT ?",
+            (top_n,),
+        ).fetchall()
+        tip_ids = {r[0] for r in rows}
+        click.echo(f"Restricting to top {top_n} tips by retrieval count ({len(tip_ids)} found).")
+
+    clusters = find_clusters(store, threshold=threshold, tip_ids=tip_ids)
 
     if not clusters:
         click.echo("No candidate clusters found — nothing to consolidate.")
@@ -383,23 +437,35 @@ def tips_consolidate(db: Path, threshold: float, dry_run: bool, model: str, limi
     if dry_run:
         click.echo("(dry-run — no changes will be applied)\n")
 
+    click.echo(f"Running merge decisions (concurrency={concurrency})...")
+
+    async def _gather_decisions() -> list[Any]:
+        sem = asyncio.Semaphore(concurrency)
+
+        async def _decide(cluster: Any) -> Any:
+            async with sem:
+                return await asyncio.to_thread(decide_merge, cluster, model=model)
+
+        return await asyncio.gather(*[_decide(c) for c in clusters], return_exceptions=True)
+
+    decisions = asyncio.run(_gather_decisions())
+
     merged = 0
     kept = 0
     failed = 0
 
-    for i, cluster in enumerate(clusters, 1):
-        ids_preview = ", ".join(t.id[:8] for t in cluster.tips)
+    for i, (cluster, result) in enumerate(zip(clusters, decisions), 1):
         click.echo(f"Cluster {i}/{len(clusters)} ({len(cluster.tips)} tips, max_sim={cluster.max_similarity:.3f}):")
         for tip in cluster.tips:
             click.echo(f"  [{tip.id[:8]}] [{tip.priority}] {tip.category}: {tip.content[:80]}")
 
-        result = decide_merge(cluster, model=model)
-        if result is None:
+        if isinstance(result, Exception):
+            click.echo(f"  → LLM call failed: {result}")
+            failed += 1
+        elif result is None:
             click.echo(f"  → LLM call failed, skipping.")
             failed += 1
-            continue
-
-        if result.action == "keep":
+        elif result.action == "keep":
             click.echo(f"  → KEEP SEPARATE: {result.reasoning}")
             kept += 1
         else:

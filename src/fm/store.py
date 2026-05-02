@@ -76,6 +76,7 @@ class TipStore:
         self.migrate_add_consolidation_columns()
         self.migrate_add_watermark_columns()
         self.migrate_add_title_column()
+        self.migrate_add_embedding_abstracted_column()
 
     def migrate_add_subtask_columns(self) -> None:
         """Add subtask_id and subtask_description columns if they don't exist (idempotent)."""
@@ -110,6 +111,13 @@ class TipStore:
         existing = {row[1] for row in self._conn.execute("PRAGMA table_info(tips)").fetchall()}
         if "title" not in existing:
             self._conn.execute("ALTER TABLE tips ADD COLUMN title TEXT NOT NULL DEFAULT ''")
+        self._conn.commit()
+
+    def migrate_add_embedding_abstracted_column(self) -> None:
+        """Add embedding_abstracted flag so --force re-embed runs are resumable (idempotent)."""
+        existing = {row[1] for row in self._conn.execute("PRAGMA table_info(tips)").fetchall()}
+        if "embedding_abstracted" not in existing:
+            self._conn.execute("ALTER TABLE tips ADD COLUMN embedding_abstracted INTEGER NOT NULL DEFAULT 0")
         self._conn.commit()
 
     def get_embedding_key(self, tip: Tip) -> str:
