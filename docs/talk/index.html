@@ -1199,7 +1199,7 @@ Steps:
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.4</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Decompose a session into logical subtasks.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">segmenter.py</td></tr>
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.1</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cognitive analysis of agent thoughts.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">intelligence.py</td></tr>
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Decision attribution &mdash; what caused what.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">attribution.py</td></tr>
-            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.3</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Tip generation per subtask.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">extractor.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.3</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Tip generation per subtask + whole-session pass.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">extractor.py</td></tr>
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-teal);">§3.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cluster + LLM-merge near-duplicates.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">consolidator.py</td></tr>
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-teal);">§3.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">SQLite + vector blob storage.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">store.py</td></tr>
             <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-yellow);">§3.3</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cosine retrieval + abstracted query.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">retriever.py</td></tr>
@@ -1220,11 +1220,11 @@ Steps:
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
       <div class="eyebrow-label"><span class="pill" style="background: rgba(154,160,166,0.15); color: var(--fg-muted);">Optional</span> Phase 1 in code</div>
-      <h2>JSONL → turns → subtasks → tips.</h2>
+      <h2>JSONL → turns → subtasks + task-level tips.</h2>
 
       <div class="two-col tight" style="margin-top: 1rem;">
         <div>
-          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Three sequential LLM passes. Each one is a subprocess call to <code>claude</code> CLI with a different prompt template.</p>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Three LLM-backed analysis passes. Each one is a Claude Code SDK call with a different prompt template; the pipeline runs them per subtask, plus one whole-session task-level pass.</p>
 <pre style="font-size: 0.48em;"><code class="language-python">def segment_session(turns, *, session_id, model="sonnet"):
     """Decompose a session into logical subtasks (§3.1.4)."""
     prompt = build_segmentation_prompt(turns)
@@ -1257,7 +1257,7 @@ fm session clear-injections "$SESSION"</code></pre>
       </div>
 
       <aside class="notes">
-        OPTIONAL slide. If you skip, the next slide still works. If you keep it: the left column is the extraction pipeline boiled down to its essentials — segment, then for each subtask run intelligence + attribution + tip generation. Each is an LLM call. The right column is where it gets practical: the PreCompact hook captures the transcript path and shells out to extract in the background. The whole reason this works for Claude Code is because the system already exposes hooks at the right lifecycle points. Without those, you'd be polling JSONL files on a timer.
+        OPTIONAL slide. If you skip, the next slide still works. If you keep it: the left column is the extraction pipeline boiled down to its essentials — segment, run intelligence + attribution + tip generation for each subtask, then run one extra task-level pass over the whole session. Each LLM step goes through the Claude Code SDK. The right column is where it gets practical: the PreCompact hook captures the transcript path and shells out to extract in the background. The whole reason this works for Claude Code is because the system already exposes hooks at the right lifecycle points. Without those, you'd be polling JSONL files on a timer.
       </aside>
     </section>
 
@@ -1506,27 +1506,27 @@ def decide_merge(cluster, *, model="sonnet"):
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
       <div class="eyebrow-label"><span class="pill">Act 5</span> Honest tradeoffs</div>
-      <h2>What I left out &mdash; on purpose.</h2>
-      <p style="color: var(--fg-muted); max-width: 60ch; margin-top: -0.3rem;">An MVP isn't the paper. Here's what I cut, why, and where I'd go next.</p>
+      <h2>Where I adapted the paper.</h2>
+      <p style="color: var(--fg-muted); max-width: 64ch; margin-top: -0.3rem;">Not every difference is a cut. Some paper machinery became a simpler implementation boundary.</p>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-top: 1.4rem; font-size: 0.92rem;">
 
-        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
-          <div class="label" style="color: var(--accent-yellow);">Cut · Dual-level tip generation</div>
-          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Paper produces both <em>domain-specific</em> and <em>generic</em> tips from the same trajectory in a single pass. I generate one set. Coverage suffers in novel domains where domain-specific tips don't match.</p>
-          <p class="footnote" style="margin-top: 0.7rem;">Cost to add: another structured prompt and a second tip-write per subtask. Likely worth it.</p>
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <div class="label" style="color: var(--accent-teal);">Kept · Task + subtask granularity</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">The repo does both levels the paper recommends: segment into transferable subtasks, then run one whole-session pass for holistic strategies that span the full trajectory.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">What I skip is the paper's separate <em>domain-specific + generic</em> tip records; mine bias toward one transferable/generalised record.</p>
         </div>
 
         <div class="card" style="border-left: 3px solid var(--accent-yellow);">
           <div class="label" style="color: var(--accent-yellow);">Cut · LLM-guided retrieval</div>
-          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Worth +7.2pp SGC over cosine alone in the paper &mdash; but the cost is one extra LLM call <em>per prompt</em> the user sends. Cosine ships first, LLM-guided is Phase 4.</p>
-          <p class="footnote" style="margin-top: 0.7rem;">Trade-off: latency on every interaction vs. cleaner cross-vocab matching. Punt until the corpus is big enough to need it.</p>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Worth +7.2pp SGC over cosine alone in the paper. I ship cosine plus a small Haiku query-abstraction call; the cut is the paper's fuller LLM-guided domain/metadata selector.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">Trade-off: more retrieval-time reasoning vs. latency on every interaction. Punt until the corpus is big enough to need it.</p>
         </div>
 
-        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
-          <div class="label" style="color: var(--accent-yellow);">Cut · Description generalization pass</div>
-          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Paper has a dedicated LLM step that strips entity names, canonicalizes verbs, and removes downstream context <em>before</em> clustering. I rely on the segmenter doing this implicitly.</p>
-          <p class="footnote" style="margin-top: 0.7rem;">Result: more near-duplicate clusters than there should be. Consolidation catches most but not all.</p>
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">Adapted · Generalization at the boundaries</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Generalization is explicit: the segmenter writes <code>generalized_description</code> with entity abstraction, action normalization, and context removal; retrieval abstracts the user prompt before embedding.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">What changed from the paper is placement: not a separate storage-stage pass, but built into extraction and retrieval.</p>
         </div>
 
         <div class="card" style="border-left: 3px solid var(--accent-coral);">
@@ -1538,11 +1538,11 @@ def decide_merge(cluster, *, model="sonnet"):
       </div>
 
       <p class="footnote" style="margin-top: 1.6rem; font-size: 0.85rem; line-height: 1.5;">
-        Honest about the gap, not embarrassed by it. Paper claims <strong style="color: var(--accent-coral);">+14.3pp SGC</strong> on the full system; with my cuts I'd expect closer to <strong style="color: var(--accent-coral);">+7-8pp</strong> on the same benchmark. Worth it for the smaller surface area &mdash; iterating on retrieval quality is much cheaper than iterating on the full extraction pipeline.
+        Honest about the gap, not embarrassed by it. My implementation keeps the core loop, task/subtask granularity, and privacy-preserving generalization. The big remaining paper feature is <strong style="color: var(--accent-coral);">full LLM-guided retrieval</strong> &mdash; richer selection logic, paid for at prompt time.
       </p>
 
       <aside class="notes">
-        Be honest here. The paper's headline number is on the *full* system. I shipped a smaller version on purpose — fewer LLM calls per session, less prompt complexity. The cuts are real and they cost some performance. Naming them helps the audience map the paper's structure to engineering reality. The "next" item is a category I'd add that *isn't* in the paper — it's closer to ReasoningBank's meta-cognitive lessons. The paper's three categories are concrete-action-shaped; sometimes what you want to remember is closer to a design principle ("don't use sed on JSON," "always pip-show before importing"). That'd be a small extension.
+        Clarify terminology here. "Dual-level" can mean two different things. Task-level plus subtask-level granularity is implemented. The domain-specific/generic distinction is handled more pragmatically: prompts push tips toward transferable/generalised language rather than always writing two separate records. Generalization is not a nice-to-have here — it is a privacy boundary, because work session details should not leak into reusable memory or embedding queries. The real remaining paper gap is full LLM-guided retrieval: richer domain/metadata reasoning before selection. The "next" item is a category I'd add that isn't in the paper — closer to ReasoningBank's meta-cognitive lessons.
       </aside>
     </section>
 
@@ -1561,17 +1561,17 @@ def decide_merge(cluster, *, model="sonnet"):
           padding: 1.4rem;
           background: var(--bg-panel);
           border-radius: 14px;
-          border: 1px solid rgba(10, 54, 255, 0.22);
+          border: 1px solid rgba(122, 162, 247, 0.24);
           width: 320px; height: 320px;
           box-sizing: content-box;
           display: flex; align-items: center; justify-content: center;
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" width="100%" height="100%" shape-rendering="crispEdges" aria-label="QR code: github.com/Phluxxed/t-mem"><defs><clipPath id="qrCenter"><circle cx="18.5" cy="18.5" r="3.2"/></clipPath></defs><path stroke="#f5f6f7" d="M2 2.5h7m1 0h2m2 0h2m1 0h10m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m3 0h1m2 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m5 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m1 0h1m3 0h6m-22 1h1m2 0h1m2 0h1m1 0h2m2 0h1m4 0h2m1 0h1m3 0h3m1 0h2m-33 1h1m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m3 0h3m-28 1h5m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m-31 1h1m1 0h2m2 0h1m3 0h1m6 0h4m1 0h3m-27 1h2m2 0h3m1 0h2m4 0h2m1 0h1m1 0h1m2 0h1m1 0h3m4 0h2m-33 1h1m2 0h3m3 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h4m3 0h1m-33 1h2m1 0h1m1 0h2m3 0h1m2 0h3m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m-31 1h2m2 0h1m3 0h2m1 0h4m4 0h3m2 0h1m3 0h1m-29 1h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m-33 1h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m4 0h2m-32 1h2m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-31 1h1m1 0h1m2 0h1m1 0h3m4 0h1m1 0h4m3 0h1m1 0h2m2 0h1m-32 1h7m2 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1m-31 1h2m2 0h1m1 0h2m3 0h3m1 0h1m1 0h2m4 0h3m2 0h4m-33 1h2m1 0h1m1 0h5m1 0h1m4 0h2m1 0h2m4 0h2m2 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m2 0h1m2 0h5m1 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h1m1 0h2m2 0h4m2 0h3m1 0h2m1 0h7m1 0h1m-24 1h5m2 0h1m1 0h6m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m2 0h2m3 0h3m2 0h1m1 0h1m2 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h3m1 0h2m3 0h7m-31 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m4 0h1m1 0h4m-32 1h1m1 0h3m1 0h1m11 0h1m4 0h1m1 0h1m1 0h3m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h6m2 0h2m1 0h4m1 0h2m-29 1h7m3 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h2m2 0h1"/><path stroke="#0a36FF" d="M2 2.5h7m1 0h2m2 0h2m1 0h10m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m3 0h1m2 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m5 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m1 0h1m3 0h6m-22 1h1m2 0h1m2 0h1m1 0h2m2 0h1m4 0h2m1 0h1m3 0h3m1 0h2m-33 1h1m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m3 0h3m-28 1h5m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m-31 1h1m1 0h2m2 0h1m3 0h1m6 0h4m1 0h3m-27 1h2m2 0h3m1 0h2m4 0h2m1 0h1m1 0h1m2 0h1m1 0h3m4 0h2m-33 1h1m2 0h3m3 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h4m3 0h1m-33 1h2m1 0h1m1 0h2m3 0h1m2 0h3m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m-31 1h2m2 0h1m3 0h2m1 0h4m4 0h3m2 0h1m3 0h1m-29 1h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m-33 1h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m4 0h2m-32 1h2m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-31 1h1m1 0h1m2 0h1m1 0h3m4 0h1m1 0h4m3 0h1m1 0h2m2 0h1m-32 1h7m2 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1m-31 1h2m2 0h1m1 0h2m3 0h3m1 0h1m1 0h2m4 0h3m2 0h4m-33 1h2m1 0h1m1 0h5m1 0h1m4 0h2m1 0h2m4 0h2m2 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m2 0h1m2 0h5m1 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h1m1 0h2m2 0h4m2 0h3m1 0h2m1 0h7m1 0h1m-24 1h5m2 0h1m1 0h6m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m2 0h2m3 0h3m2 0h1m1 0h1m2 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h3m1 0h2m3 0h7m-31 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m4 0h1m1 0h4m-32 1h1m1 0h3m1 0h1m11 0h1m4 0h1m1 0h1m1 0h3m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h6m2 0h2m1 0h4m1 0h2m-29 1h7m3 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h2m2 0h1" clip-path="url(#qrCenter)"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" width="100%" height="100%" shape-rendering="crispEdges" aria-label="QR code: github.com/Phluxxed/t-mem"><path stroke="#f5f6f7" d="M2 2.5h7m1 0h2m2 0h2m1 0h10m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m3 0h1m2 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m5 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m1 0h1m3 0h6m-22 1h1m2 0h1m2 0h1m1 0h2m2 0h1m4 0h2m1 0h1m3 0h3m1 0h2m-33 1h1m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m3 0h3m-28 1h5m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m-31 1h1m1 0h2m2 0h1m3 0h1m6 0h4m1 0h3m-27 1h2m2 0h3m1 0h2m4 0h2m1 0h1m1 0h1m2 0h1m1 0h3m4 0h2m-33 1h1m2 0h3m3 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h4m3 0h1m-33 1h2m1 0h1m1 0h2m3 0h1m2 0h3m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m-31 1h2m2 0h1m3 0h2m1 0h4m4 0h3m2 0h1m3 0h1m-29 1h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m-33 1h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m4 0h2m-32 1h2m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-31 1h1m1 0h1m2 0h1m1 0h3m4 0h1m1 0h4m3 0h1m1 0h2m2 0h1m-32 1h7m2 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1m-31 1h2m2 0h1m1 0h2m3 0h3m1 0h1m1 0h2m4 0h3m2 0h4m-33 1h2m1 0h1m1 0h5m1 0h1m4 0h2m1 0h2m4 0h2m2 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m2 0h1m2 0h5m1 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h1m1 0h2m2 0h4m2 0h3m1 0h2m1 0h7m1 0h1m-24 1h5m2 0h1m1 0h6m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m2 0h2m3 0h3m2 0h1m1 0h1m2 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h3m1 0h2m3 0h7m-31 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m4 0h1m1 0h4m-32 1h1m1 0h3m1 0h1m11 0h1m4 0h1m1 0h1m1 0h3m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h6m2 0h2m1 0h4m1 0h2m-29 1h7m3 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h2m2 0h1"/><path stroke="#ff5c57" d="M2 2.5h7m-7 1h1m5 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m5 0h1m-7 1h7"/><path stroke="#7aa2f7" d="M28 2.5h7m-7 1h1m5 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m5 0h1m-7 1h7"/><path stroke="#34e2c9" d="M2 28.5h7m-7 1h1m5 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m1 0h3m1 0h1m-7 1h1m5 0h1m-7 1h7"/></svg>
         </div>
       </div>
 
       <p style="margin-top: 1.4rem; text-align: center; font-family: var(--font-mono); font-size: 0.95rem; color: var(--fg-primary); letter-spacing: -0.01em;">
-        <a href="https://github.com/Phluxxed/t-mem" style="color: var(--fg-primary); border-bottom: 1px dotted #0a36FF;">github.com/Phluxxed/t-mem</a>
+        <a href="https://github.com/Phluxxed/t-mem" style="color: var(--fg-primary); border-bottom: 1px dotted var(--accent-blue);">github.com/Phluxxed/t-mem</a>
       </p>
 
       <p style="margin-top: 1.2rem; color: var(--fg-dim); font-size: 0.8rem; text-align: center;">
