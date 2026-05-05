@@ -100,10 +100,10 @@ fm baseline                       # Capture pre-injection error/recovery metrics
 The `.claude/hooks/` directory contains shell scripts for Claude Code integration. Copy them to `~/.claude/hooks/` and make them executable:
 
 ```bash
-cp .claude/hooks/future-memory-retrieve.sh ~/.claude/hooks/
-cp .claude/hooks/future-memory-pre-compact.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/future-memory-retrieve.sh
-chmod +x ~/.claude/hooks/future-memory-pre-compact.sh
+cp .claude/hooks/fm-retrieve.sh ~/.claude/hooks/
+cp .claude/hooks/fm-pre-compact.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/fm-retrieve.sh
+chmod +x ~/.claude/hooks/fm-pre-compact.sh
 ```
 
 Then add to `~/.claude/settings.json`:
@@ -116,7 +116,7 @@ Then add to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/future-memory-retrieve.sh",
+            "command": "bash ~/.claude/hooks/fm-retrieve.sh",
             "timeout": 10
           }
         ]
@@ -127,7 +127,7 @@ Then add to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/future-memory-pre-compact.sh",
+            "command": "bash ~/.claude/hooks/fm-pre-compact.sh",
             "timeout": 300
           }
         ]
