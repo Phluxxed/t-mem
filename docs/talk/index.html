@@ -1,0 +1,1615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280, initial-scale=1, shrink-to-fit=no">
+  <title>Trajectory-Informed Memory for Self-Improving Agents — Paper Walkthrough</title>
+
+  <link rel="stylesheet" href="assets/reveal/reveal.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700&display=swap">
+
+  <style>
+    /* ────────────────────────────────────────────────────────────
+       Design tokens — Vik's palette mapped to semantic roles
+       ──────────────────────────────────────────────────────────── */
+    :root {
+      --bg-base:        #1c1e22;
+      --bg-panel:       #22252a;
+      --bg-elevated:    #2b2f36;
+      --fg-primary:     #f5f6f7;
+      --fg-muted:       #9aa0a6;
+      --fg-dim:         #6c7177;
+      --accent-coral:   #ff5c57;
+      --accent-blue:    #7aa2f7;
+      --accent-teal:    #34e2c9;
+      --accent-yellow:  #ffd60a;
+      --accent-red:     #ff3b30;
+
+      --strategy:       var(--accent-teal);
+      --recovery:       var(--accent-yellow);
+      --optimization:   var(--accent-blue);
+      --critical:       var(--accent-red);
+
+      --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
+      --font-serif:     'Fraunces', 'Iowan Old Style', Georgia, serif;
+      --font-mono:      'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Reveal overrides — base canvas
+       ──────────────────────────────────────────────────────────── */
+    html, body { background: var(--bg-base); }
+
+    .reveal {
+      font-family: var(--font-sans);
+      font-size: 34px;
+      font-weight: 400;
+      color: var(--fg-primary);
+      letter-spacing: -0.005em;
+    }
+
+    .reveal .slides { text-align: left; }
+    .reveal .slides section { padding: 1.6rem 2.4rem; box-sizing: border-box; }
+    .reveal .slides > section,
+    .reveal .slides > section > section { width: 100%; }
+    /* Reveal handles vertical centering. Generous breathing room between
+       direct children of section, and inside cards/two-col cells. */
+    .reveal .slides section > * + * { margin-top: 1.2rem; }
+    .reveal .slides section > h2 + p,
+    .reveal .slides section > h2 + .lede,
+    .reveal .slides section > .eyebrow-label + h2 { margin-top: 0.5rem; }
+    .reveal .slides section > h2 + p[style*="color: var(--fg-muted)"] { margin-top: 0.5rem; }   /* the gray subtitle */
+
+    /* Stacked elements inside cards get matching breathing room. */
+    .card > * + * { margin-top: 0.7rem; }
+    .tip-card > * + * { margin-top: 0.5rem; }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      font-family: var(--font-sans);
+      color: var(--fg-primary);
+      letter-spacing: -0.025em;
+      font-weight: 700;
+      text-transform: none;
+      line-height: 1.05;
+      margin: 0 0 0.5em 0;
+    }
+    .reveal h1 { font-size: 4.6rem; font-weight: 800; }
+    .reveal h2 { font-size: 2.9rem; font-weight: 700; }
+    .reveal h3 { font-size: 1.7rem; font-weight: 600; color: var(--fg-muted); }
+    .reveal p, .reveal li { line-height: 1.5; }
+    .reveal strong { color: var(--accent-coral); font-weight: 600; }
+    .reveal em { color: var(--accent-yellow); font-style: normal; }
+    .reveal a { color: var(--accent-blue); text-decoration: none; border-bottom: 1px solid rgba(122, 162, 247, 0.3); }
+    .reveal ul, .reveal ol { margin-left: 0; padding-left: 1.2em; }
+    .reveal li + li { margin-top: 0.4em; }
+    .reveal li::marker { color: var(--accent-coral); }
+
+    /* ────────────────────────────────────────────────────────────
+       Slide-number / progress
+       ──────────────────────────────────────────────────────────── */
+    .reveal .slide-number {
+      font-family: var(--font-mono);
+      background: transparent;
+      color: var(--fg-dim);
+      font-size: 0.7rem;
+      right: 24px; bottom: 18px;
+    }
+    .reveal .progress { color: var(--accent-coral); height: 3px; }
+    .reveal .controls { color: var(--fg-dim); }
+
+    /* ────────────────────────────────────────────────────────────
+       Code blocks
+       ──────────────────────────────────────────────────────────── */
+    .reveal pre {
+      box-shadow: none;
+      width: 100%;
+      font-size: 0.72em;
+      line-height: 1.45;
+      background: var(--bg-panel);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0;
+      margin: 0.5em 0;
+      flex-shrink: 0;            /* don't compress vertically inside flex parents */
+    }
+    .reveal pre code {
+      font-family: var(--font-mono);
+      padding: 1.4rem 1.6rem;
+      max-height: none;          /* let pre grow with the slide canvas */
+      border-radius: 10px;
+      background: transparent;
+      overflow: visible;         /* pre clips horizontally; vertical sizes to content */
+      white-space: pre;
+    }
+    .reveal code { font-family: var(--font-mono); color: var(--accent-teal); background: rgba(52,226,201,0.08); padding: 1px 6px; border-radius: 4px; font-size: 0.92em; }
+    .reveal pre code { color: var(--fg-primary); background: transparent; }
+
+    /* highlight.js theme tuned to palette */
+    .hljs                     { color: var(--fg-primary); background: transparent; }
+    .hljs-comment             { color: var(--fg-dim); font-style: italic; }
+    .hljs-keyword             { color: var(--accent-coral); font-weight: 500; }
+    .hljs-built_in            { color: var(--accent-blue); }
+    .hljs-string              { color: var(--accent-teal); }
+    .hljs-number              { color: var(--accent-yellow); }
+    .hljs-title.function_,
+    .hljs-title               { color: var(--accent-blue); font-weight: 600; }
+    .hljs-class .hljs-title   { color: var(--accent-yellow); }
+    .hljs-attr                { color: var(--accent-yellow); }
+    .hljs-meta, .hljs-decorator { color: var(--accent-coral); }
+    .hljs-params              { color: var(--fg-primary); }
+    .hljs-variable, .hljs-name { color: var(--fg-primary); }
+    .hljs-literal             { color: var(--accent-yellow); }
+
+    /* ────────────────────────────────────────────────────────────
+       Custom slide types
+       ──────────────────────────────────────────────────────────── */
+
+    /* TITLE SLIDE */
+    section.title { /* reveal vertically centers by default */ }
+    section.title .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-coral);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 1.6rem;
+    }
+    section.title h1 {
+      font-family: var(--font-serif);
+      font-size: 5rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.0;
+      margin-bottom: 1.2rem;
+    }
+    section.title h1 .accent { color: var(--accent-coral); font-style: italic; }
+    section.title .subtitle {
+      font-size: 1.5rem; color: var(--fg-muted); font-weight: 400;
+      max-width: 28ch;
+    }
+    section.title .meta {
+      margin-top: 3rem;
+      display: flex; gap: 2.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--fg-dim);
+      letter-spacing: 0.04em;
+    }
+    section.title .meta strong { color: var(--fg-muted); font-weight: 500; }
+
+    /* SECTION DIVIDER */
+    section.act-divider { /* reveal vertically centers by default */ }
+    section.act-divider .act-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-coral);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+    section.act-divider h1 {
+      font-family: var(--font-serif);
+      font-size: 4.4rem;
+      font-weight: 500;
+      font-style: italic;
+      letter-spacing: -0.025em;
+    }
+    section.act-divider .act-sub {
+      font-size: 1.4rem; color: var(--fg-muted);
+      max-width: 32ch; margin-top: 1.2rem;
+    }
+
+    /* SLIDE WITH EYEBROW LABEL */
+    .eyebrow-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--fg-dim);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+    .eyebrow-label .pill {
+      background: rgba(255,92,87,0.12);
+      color: var(--accent-coral);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-right: 0.6rem;
+    }
+
+    /* TWO-COLUMN — defaults to STRETCH so paired cards always match heights */
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+      align-items: stretch;
+    }
+    .two-col.tight { gap: 1.8rem; }
+    .two-col.lean-left  { grid-template-columns: 3fr 2fr; }
+    .two-col.lean-right { grid-template-columns: 2fr 3fr; }
+    .two-col > * { min-width: 0; }
+
+    /* CARD — grid's default align-items:stretch matches paired card heights. */
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 1.7rem 1.9rem;
+      min-width: 0;
+      display: flex; flex-direction: column;
+    }
+    /* if a card ends in a .footnote, pin it to the bottom so paired cards balance. */
+    .card > .footnote:last-child { margin-top: auto; }
+    .card h3 { color: var(--fg-primary); margin-bottom: 0.4rem; font-size: 1.3rem; }
+    .card .label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    .card.strategy { border-left: 3px solid var(--strategy); }
+    .card.recovery { border-left: 3px solid var(--recovery); }
+    .card.optimization { border-left: 3px solid var(--optimization); }
+    .card.strategy .label { color: var(--strategy); }
+    .card.recovery .label { color: var(--recovery); }
+    .card.optimization .label { color: var(--optimization); }
+
+    /* BIG-NUMBER STAT */
+    .stat-block { display: flex; flex-direction: column; gap: 0.2rem; }
+    .stat-block .num {
+      font-family: var(--font-serif);
+      font-size: 7rem; font-weight: 500;
+      color: var(--accent-coral);
+      letter-spacing: -0.04em; line-height: 1;
+    }
+    .stat-block .num.teal  { color: var(--accent-teal); }
+    .stat-block .num.yellow{ color: var(--accent-yellow); }
+    .stat-block .num.blue  { color: var(--accent-blue); }
+    .stat-block .label {
+      font-size: 1.05rem; color: var(--fg-muted); margin-top: 0.4rem;
+    }
+    .stat-block .sub { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fg-dim); }
+
+    /* QUOTE / CALLOUT */
+    .pull {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.6rem;
+      line-height: 1.35;
+      color: var(--fg-primary);
+      border-left: 3px solid var(--accent-coral);
+      padding: 0.4rem 0 0.4rem 1.5rem;
+      max-width: 28ch;
+    }
+    .pull .src { display: block; margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* TIP-CARD: real tip rendered like the paper does it */
+    .tip-card {
+      background: var(--bg-panel);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      min-width: 0;
+    }
+    .tip-card .tip-head {
+      display: flex; gap: 0.6rem; align-items: center;
+      margin-bottom: 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .tip-card .tag {
+      padding: 3px 9px; border-radius: 4px; font-weight: 600;
+    }
+    .tip-card .tag.priority-critical { background: rgba(255,59,48,0.15); color: var(--accent-red); }
+    .tip-card .tag.priority-high     { background: rgba(255,214,10,0.15); color: var(--accent-yellow); }
+    .tip-card .tag.priority-medium   { background: rgba(154,160,166,0.15); color: var(--fg-muted); }
+    .tip-card .tag.cat-strategy     { background: rgba(52,226,201,0.15); color: var(--strategy); }
+    .tip-card .tag.cat-recovery     { background: rgba(255,214,10,0.15); color: var(--recovery); }
+    .tip-card .tag.cat-optimization { background: rgba(122,162,247,0.15); color: var(--optimization); }
+    .tip-card .tip-title {
+      font-family: var(--font-sans);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      color: var(--fg-primary);
+      letter-spacing: -0.01em;
+    }
+    .tip-card .tip-row { margin: 0.3rem 0; }
+    .tip-card .tip-row .k {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--fg-dim);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      display: inline-block; min-width: 5.5rem;
+    }
+    .tip-card .tip-row .v { color: var(--fg-primary); }
+
+    /* DIAGRAM */
+    .diagram { width: 100%; height: auto; display: block; max-width: 100%; overflow: visible; }
+    .diagram text { font-family: var(--font-sans); font-size: 13px; fill: var(--fg-primary); }
+    .diagram .label-mono { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; }
+    .diagram .box { fill: var(--bg-panel); stroke: rgba(255,255,255,0.08); }
+    .diagram .arrow { stroke: var(--fg-muted); fill: none; stroke-width: 1.5; }
+
+    /* TERMINAL DEMO — animated lifecycle replay */
+    .terminal-demo { margin-top: 1.4rem; }
+    .term-window {
+      background: #0e1014;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .term-titlebar {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 0.85rem;
+      background: #181b21;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .term-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+    .term-dot.red    { background: #ff5c57; }
+    .term-dot.yellow { background: #ffd60a; }
+    .term-dot.green  { background: #34e2c9; }
+    .term-title {
+      margin-left: auto; margin-right: auto;
+      font-size: 0.65rem; color: var(--fg-dim); letter-spacing: 0.06em;
+    }
+    .term-body {
+      padding: 1.1rem 1.4rem;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      color: var(--fg-primary);
+      min-height: 24rem;
+    }
+    .term-line {
+      opacity: 0;
+      animation: termAppear 32s linear infinite;
+      animation-delay: var(--d, 0s);
+    }
+    .term-line .prompt { color: var(--accent-teal); margin-right: 0.4em; }
+    .term-line .cmd    { color: var(--fg-primary); }
+    .term-line.out     { color: var(--fg-muted); }
+    .term-line.narr    { color: var(--fg-primary); font-style: italic; opacity: 0.95; }
+    .term-line.narr.final { color: var(--accent-coral); font-style: normal; font-weight: 500; }
+    .term-line.tip-source {
+      background: rgba(52,226,201,0.06);
+      border-left: 2px solid var(--accent-teal);
+      padding: 0.6rem 0.9rem;
+      margin: 0.4em 0 0.4em 1.4em;
+      border-radius: 0 6px 6px 0;
+      color: var(--fg-primary);
+    }
+    .term-line.stage-marker {
+      color: var(--accent-coral);
+      margin: 0.9em 0 0.5em;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .term-line.tip-injection {
+      background: rgba(255,92,87,0.05);
+      border-left: 2px solid var(--accent-coral);
+      padding: 0.7rem 0.9rem;
+      margin: 0.5em 0;
+      border-radius: 0 6px 6px 0;
+      color: var(--fg-primary);
+    }
+    .term-line .hl-coral  { color: var(--accent-coral); font-weight: 600; }
+    .term-line .hl-teal   { color: var(--accent-teal); }
+    .term-line .hl-yellow { color: var(--accent-yellow); }
+    .term-line .hl-dim    { color: var(--fg-dim); }
+
+    /* fade in at the line's delay, hold visible most of the cycle, fade out at the end */
+    @keyframes termAppear {
+      0%   { opacity: 0; transform: translateY(3px); }
+      3%   { opacity: 1; transform: none; }
+      93%  { opacity: 1; }
+      98%, 100% { opacity: 0; }
+    }
+
+    /* MISC */
+    .footnote {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--fg-dim); margin-top: 1rem;
+    }
+    .kbd {
+      font-family: var(--font-mono); font-size: 0.75em;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1px 6px; border-radius: 4px;
+      color: var(--fg-primary);
+    }
+    .lede {
+      font-size: 1.5rem; line-height: 1.4; color: var(--fg-primary);
+      max-width: 30ch; font-weight: 400;
+    }
+    .lede strong { color: var(--accent-coral); }
+
+    /* fragment colour */
+    .reveal .fragment.highlight-coral.visible { color: var(--accent-coral); }
+  </style>
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 1 — TITLE
+         ════════════════════════════════════════════════════════════════ -->
+    <section class="title" data-background-color="#1c1e22">
+      <div class="eyebrow">Paper Reading Club · Walkthrough</div>
+      <h1>Agents that <span class="accent">remember</span><br>what they learned.</h1>
+      <p class="subtitle">Trajectory-Informed Memory Generation for Self-Improving Agent Systems</p>
+      <div class="meta">
+        <div><strong>arXiv:2603.10600</strong> &nbsp;·&nbsp; IBM Research</div>
+        <div><strong>Fang et al.</strong> &nbsp;·&nbsp; Feb 2026</div>
+        <div><strong>14 pages</strong> &nbsp;·&nbsp; ~35 min</div>
+      </div>
+      <aside class="notes">
+        Open warm. "Tonight's paper is from IBM Research, came out February — it's about giving AI agents the ability to actually learn from their past sessions instead of starting fresh every time. I picked it because if you've used Claude Code or Cursor for more than a week, you've felt this exact problem. We're going to walk through the paper end to end, and then I'll show you the system I built from it. We'll keep it conversational — interrupt me, push back, we figure it out together."
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 2 — THE HOOK
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 1</span> The Setup</div>
+      <h2>Your agent has amnesia.</h2>
+      <div class="two-col top" style="margin-top: 2rem;">
+        <div>
+          <p class="lede">
+            You debug the same Prisma schema bug today.
+            You'll debug it <strong>again</strong> next Tuesday,
+            and the Tuesday after that.
+          </p>
+          <p style="margin-top: 1.4rem; color: var(--fg-muted); font-size: 1rem;">
+            Most LLMs are stateless. Most agents are LLMs in a loop.
+            So most agents have <em>no systematic way to learn from execution.</em>
+          </p>
+        </div>
+        <div class="pull">
+          "Agents have amnesia because most LLMs are stateless. An agent that struggles with a particular API authentication flow today will struggle with the same flow tomorrow unless its prompts are manually updated."
+          <span class="src">— Paper §1, Introduction</span>
+        </div>
+      </div>
+      <aside class="notes">
+        Slow down here. Get a show of hands: "who's hit the same bug twice this week with their AI tool?" Most hands go up. That's the felt problem. Now name it: this is what the paper calls "agent amnesia." Set up the real cost: it's not just annoying — every time you re-discover, you burn tokens, time, and trust. The paper's framing: stateful systems learn, stateless systems suffer. We need a way to give stateless agents memory of their *experience* — not just facts, but lessons.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 3 — THE THREE-AGENT VIGNETTE
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 1</span> Three agents, one task</div>
+      <h2>Same task. Three trajectories. Three lessons.</h2>
+      <p style="color: var(--fg-muted); margin-top: -0.4rem; max-width: 60ch;">
+        The paper opens with an e-commerce checkout. Three agents complete it. They all <em>succeed</em> — but each one teaches a different thing.
+      </p>
+
+      <div class="two-col tight" style="margin-top: 1.6rem; grid-template-columns: 1fr 1fr 1fr;">
+
+        <div class="card strategy">
+          <div class="label">Agent A · Clean run</div>
+          <h3 style="font-size: 1.15rem;">Verified prerequisites first.</h3>
+          <p style="font-size: 0.92rem; color: var(--fg-muted); margin-top: 0.3rem;">
+            Checked cart, address, payment method <em>before</em> calling checkout.
+          </p>
+          <p class="fragment" style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--strategy);">
+            → STRATEGY tip
+          </p>
+        </div>
+
+        <div class="card recovery">
+          <div class="label">Agent B · Stumbled, recovered</div>
+          <h3 style="font-size: 1.15rem;">Hit a payment-method error.</h3>
+          <p style="font-size: 0.92rem; color: var(--fg-muted); margin-top: 0.3rem;">
+            Recognised the error, added payment, retried successfully.
+          </p>
+          <p class="fragment" style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--recovery);">
+            → RECOVERY tip
+          </p>
+        </div>
+
+        <div class="card optimization">
+          <div class="label">Agent C · Worked, but wastefully</div>
+          <h3 style="font-size: 1.15rem;">Looped <code>remove_from_cart()</code>.</h3>
+          <p style="font-size: 0.92rem; color: var(--fg-muted); margin-top: 0.3rem;">
+            Removed items one at a time. <code>empty_cart()</code> existed — it just didn't notice.
+          </p>
+          <p class="fragment" style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--optimization);">
+            → OPTIMIZATION tip
+          </p>
+        </div>
+
+      </div>
+
+      <p class="footnote fragment">Three categories of learning &mdash; strategy, recovery, optimization &mdash; each from a different shape of trajectory. <strong style="color: var(--accent-coral);">This taxonomy is the paper's whole foundation.</strong></p>
+
+      <aside class="notes">
+        This vignette IS the paper's central insight expressed as a story. Walk it slowly. Pause after Agent A, ask: "what could a future agent learn from this?" — get them saying it before the slide reveals the label. Same for B and C. The point: most existing memory systems only learn from failures (or only from successes). The paper says: every successful trajectory contains *at least one* lesson, and the *type* of lesson depends on *how* it succeeded. That trichotomy — strategy / recovery / optimization — is what the rest of the paper is built on. Don't move on until everyone has internalised this.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 4 — THE THREE TIP TYPES (with REAL examples from the corpus)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 1</span> The three tip types — for real</div>
+      <h2>What a "tip" actually looks like.</h2>
+      <p style="color: var(--fg-muted); margin-top: -0.3rem; max-width: 60ch;">
+        Tips are <em>structured</em>, not free-form notes. Each has a category, a trigger, steps, a priority &mdash; the kind of record an agent can act on. These are real tips from a Claude Code session corpus I extracted with this pipeline.
+      </p>
+
+      <div class="two-col tight" style="margin-top: 1.4rem; grid-template-columns: 1fr 1fr;">
+
+        <div class="tip-card">
+          <div class="tip-head">
+            <span class="tag cat-strategy">Strategy</span>
+            <span class="tag priority-high">High</span>
+            <span style="color: var(--fg-dim); margin-left: auto;">memory-agent session</span>
+          </div>
+          <div class="tip-title">Require assertions beyond same-session trigger events</div>
+          <div class="tip-row"><span class="k">when</span><span class="v">Memory agent is about to write an observation after a session resume or continuation event.</span></div>
+          <div class="tip-row"><span class="k">do</span><span class="v">Diff proposed observation content against the most recent record. Only proceed if at least one new fact, decision, or state change is present.</span></div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-head">
+            <span class="tag cat-recovery">Recovery</span>
+            <span class="tag priority-high">High</span>
+            <span style="color: var(--fg-dim); margin-left: auto;">test-runner session</span>
+          </div>
+          <div class="tip-title">Bypass token-filtering proxy before concluding suite is empty</div>
+          <div class="tip-row"><span class="k">when</span><span class="v">Test runner returns "No tests collected" via a token-filtering or output-processing wrapper.</span></div>
+          <div class="tip-row"><span class="k">do</span><span class="v">Re-run with a raw passthrough command before assuming there are no tests.</span></div>
+        </div>
+
+      </div>
+
+      <p class="footnote fragment">
+        The full schema also carries: <code>purpose</code>, <code>negative_example</code>, <code>source_session_id</code>, <code>task_context</code>, an <code>embedding</code>, and a priority that retrieval uses for ranking. We'll come back to the full record when we get to storage.
+      </p>
+
+      <aside class="notes">
+        These are real tips from my own corpus — 1,246 of them, extracted across 109 sessions. The first one is delicious because it's a memory agent that learned a rule about *when not to write a memory*. The agent literally taught itself something about its own job. The second one is a recovery tip with concrete corrective steps — note the specific trigger condition. Both have a category, a priority, a when, a do. That structure is what makes them retrievable and actionable. Free-form notes can't be filtered, ranked, or matched. Structured tips can. We're going to spend the rest of the talk understanding how the paper extracts, stores, and retrieves things in this shape.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         REMAINING SLIDES — placeholder skeleton, to be expanded after
+         visual sign-off on the first four.
+         ════════════════════════════════════════════════════════════════ -->
+    <section class="act-divider" data-background-color="#1c1e22">
+      <div class="act-num">Act 2 of 5</div>
+      <h1>Why this is hard.</h1>
+      <p class="act-sub">Five things any honest learning system has to solve &mdash; and where existing approaches fall down.</p>
+      <aside class="notes">
+        Quick transition. "We've named the problem and we've sketched the solution shape. Before we look at how the paper actually builds it, two slides on what makes this hard — because if you don't see why naive approaches don't work, the elaborate machinery in §3 will look like over-engineering. Pause for questions before moving on."
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 6 — FIVE LEARNING REQUIREMENTS (Paper §2.1)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 2</span> Paper §2.1 · Learning Requirements</div>
+      <h2>Five things any honest learning system needs.</h2>
+      <p style="color: var(--fg-muted); margin-top: -0.3rem; max-width: 64ch;">
+        Most memory systems quietly skip several of these. The paper argues you need <em>all five</em>, or you end up storing facts instead of lessons.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.4rem; font-size: 0.92rem;">
+        <div class="card strategy">
+          <div class="label">1 · Strategy from clean wins</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">When an agent succeeds without errors, what made the run clean? Capture <em>that</em>, not just the outcome.</p>
+        </div>
+        <div class="card recovery">
+          <div class="label">2 · Recovery from failures</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">When an agent stumbles and recovers, the recovery sequence is the lesson — not the failure or the eventual success alone.</p>
+        </div>
+        <div class="card optimization">
+          <div class="label">3 · Optimization from inefficient wins</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">Succeeding suboptimally still teaches: which alternative would have been faster, cheaper, fewer calls?</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--accent-coral);">
+          <div class="label" style="color: var(--accent-coral);">4 · Step-level attribution</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">If failure happens at step 15, the <em>cause</em> may be at step 3. The system must trace the chain.</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--accent-blue); grid-column: span 2;">
+          <div class="label" style="color: var(--accent-blue);">5 · Semantic reasoning analysis · provenance</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">Recognise <em>why</em> an agent thought what it thought (analytical / planning / validation / reflection patterns), and keep links from each tip back to the source trajectory so the learning itself can be debugged.</p>
+        </div>
+      </div>
+
+      <aside class="notes">
+        Walk these. Slow down on #2 — recovery is the requirement most existing memory systems get wrong, because they only record outcomes, not corrective sequences. #4 is the conceptually hardest: the failing step is rarely the buggy step. #5 is the one that lets you audit the system later — "why did the agent get this guidance?" needs to be answerable. If you can't trace a tip back to a trajectory, you can't tell good guidance from bad. Q for the room: "which of these does your existing setup get wrong?"
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 7 — WHY EXISTING APPROACHES FALL SHORT
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 2</span> Paper §2.3 · The status quo</div>
+      <h2>Why the obvious fixes don't work.</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.2rem; font-size: 0.9rem;">
+
+        <div class="card">
+          <div class="label" style="color: var(--accent-red);">Rule-based playbooks</div>
+          <h3 style="font-size: 1.1rem; margin: 0.3rem 0 0.4rem; color: var(--fg-primary);">Brittle. Can't adapt.</h3>
+          <p style="margin: 0; color: var(--fg-muted);">Hand-crafted rules require humans to anticipate patterns. The agent can't extend them from observed runs.</p>
+        </div>
+
+        <div class="card">
+          <div class="label" style="color: var(--accent-red);">Prompt engineering</div>
+          <h3 style="font-size: 1.1rem; margin: 0.3rem 0 0.4rem; color: var(--fg-primary);">Manual feedback loop.</h3>
+          <p style="margin: 0; color: var(--fg-muted);">Improves only when a human notices a pattern and edits the prompt. No mechanism for systematic capture.</p>
+        </div>
+
+        <div class="card">
+          <div class="label" style="color: var(--accent-red);">Generic memory (Mem0, Letta)</div>
+          <h3 style="font-size: 1.1rem; margin: 0.3rem 0 0.4rem; color: var(--fg-primary);">Stores facts, not lessons.</h3>
+          <p style="margin: 0; color: var(--fg-muted);">Treats all memories uniformly. No causal analysis. No category structure. No provenance back to trajectories.</p>
+        </div>
+
+        <div class="card">
+          <div class="label" style="color: var(--accent-red);">Reinforcement learning</div>
+          <h3 style="font-size: 1.1rem; margin: 0.3rem 0 0.4rem; color: var(--fg-primary);">Opaque. Data-hungry.</h3>
+          <p style="margin: 0; color: var(--fg-muted);">Optimises for reward but won't separate strategy / recovery / optimization. Black-box improvements you can't audit.</p>
+        </div>
+
+      </div>
+
+      <p class="footnote" style="margin-top: 1.3rem;">
+        Each of these solves <em>part</em> of the problem. None of them does <em>structured, causal, categorised, traceable</em> learning end-to-end. That's the gap the paper is filling.
+      </p>
+
+      <aside class="notes">
+        This slide makes the paper's positioning clear. Each row points at a real system class people in the room have probably built or used. The honest framing: "all of these have value — the paper isn't saying they're wrong, it's saying none of them does the *whole* job." Generic memory is the closest comparable — Mem0 is well-engineered for what it does (storing user preferences, facts, entities) but it doesn't analyze *how* an agent succeeded or failed. The framework we're about to look at fills exactly that gap.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 8 — ACT 3 DIVIDER
+         ════════════════════════════════════════════════════════════════ -->
+    <section class="act-divider" data-background-color="#1c1e22">
+      <div class="act-num">Act 3 of 5</div>
+      <h1>The framework.</h1>
+      <p class="act-sub">A three-phase pipeline that turns trajectories into structured, retrievable lessons.</p>
+      <aside class="notes">
+        Set expectations. "We're going to spend the most time here — this is the meat of the paper. Three phases: extraction, storage, retrieval. I'll walk you through each. The whole framework is on the next slide; we'll come back to it after each phase." Keep energy up — this is a lot of structure to absorb.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 9 — PIPELINE OVERVIEW (SVG)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 3</span> Paper Figure 1</div>
+      <h2>The three-phase pipeline.</h2>
+      <p style="color: var(--fg-muted); max-width: 64ch; margin-top: -0.3rem;">
+        Trajectory in, structured tips out, the right one back into the next agent invocation. Everything else is detail.
+      </p>
+
+      <svg class="diagram" viewBox="0 0 1280 480" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="margin-top: 1.2rem;">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#9aa0a6"/>
+          </marker>
+          <marker id="arrow-coral" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#ff5c57"/>
+          </marker>
+        </defs>
+
+        <!-- Three phase boxes -->
+        <g>
+          <rect class="box" x="40"  y="30" width="320" height="220" rx="12" fill="#22252a" stroke="rgba(122,162,247,0.4)" stroke-width="1"/>
+          <text x="60" y="60" class="label-mono" fill="#7aa2f7" font-weight="600">PHASE 1 · EXTRACTION</text>
+          <text x="60" y="100" font-size="22" font-weight="600" fill="#f5f6f7">Trajectory → Tips</text>
+          <text x="60" y="135" font-size="14" fill="#9aa0a6">• Trajectory Intelligence</text>
+          <text x="60" y="160" font-size="14" fill="#9aa0a6">• Decision Attribution</text>
+          <text x="60" y="185" font-size="14" fill="#9aa0a6">• Tip Generation (3 types)</text>
+          <text x="60" y="210" font-size="14" fill="#9aa0a6">• Subtask decomposition</text>
+        </g>
+
+        <g>
+          <rect class="box" x="430" y="30" width="320" height="220" rx="12" fill="#22252a" stroke="rgba(52,226,201,0.4)" stroke-width="1"/>
+          <text x="450" y="60" class="label-mono" fill="#34e2c9" font-weight="600">PHASE 2 · STORAGE</text>
+          <text x="450" y="100" font-size="22" font-weight="600" fill="#f5f6f7">Tips → Curated corpus</text>
+          <text x="450" y="135" font-size="14" fill="#9aa0a6">• Description generalization</text>
+          <text x="450" y="160" font-size="14" fill="#9aa0a6">• Semantic clustering</text>
+          <text x="450" y="185" font-size="14" fill="#9aa0a6">• LLM consolidation</text>
+          <text x="450" y="210" font-size="14" fill="#9aa0a6">• Vector + metadata index</text>
+        </g>
+
+        <g>
+          <rect class="box" x="820" y="30" width="320" height="220" rx="12" fill="#22252a" stroke="rgba(255,214,10,0.4)" stroke-width="1"/>
+          <text x="840" y="60" class="label-mono" fill="#ffd60a" font-weight="600">PHASE 3 · RETRIEVAL</text>
+          <text x="840" y="100" font-size="22" font-weight="600" fill="#f5f6f7">Corpus → Prompt</text>
+          <text x="840" y="135" font-size="14" fill="#9aa0a6">• Query embedding</text>
+          <text x="840" y="160" font-size="14" fill="#9aa0a6">• Cosine similarity (τ, top-k)</text>
+          <text x="840" y="185" font-size="14" fill="#9aa0a6">• LLM-guided selection</text>
+          <text x="840" y="210" font-size="14" fill="#9aa0a6">• Inject as guidelines</text>
+        </g>
+
+        <!-- Forward arrows between phases -->
+        <line x1="365" y1="140" x2="425" y2="140" class="arrow" marker-end="url(#arrow)"/>
+        <line x1="755" y1="140" x2="815" y2="140" class="arrow" marker-end="url(#arrow)"/>
+        <text x="395" y="125" font-size="11" fill="#6c7177" font-family="JetBrains Mono" text-anchor="middle">tips</text>
+        <text x="785" y="125" font-size="11" fill="#6c7177" font-family="JetBrains Mono" text-anchor="middle">tips</text>
+
+        <!-- Agent box -->
+        <rect class="box" x="430" y="340" width="320" height="84" rx="12" fill="#1c1e22" stroke="#ff5c57" stroke-width="1.5"/>
+        <text x="450" y="370" class="label-mono" fill="#ff5c57" font-weight="600">AGENT</text>
+        <text x="450" y="400" font-size="20" font-weight="600" fill="#f5f6f7">executing the next task</text>
+
+        <!-- Loop arrows: retrieval -> agent (down/left), agent -> trajectory (left/up) -->
+        <path d="M 980 250 L 980 320 L 750 380" class="arrow" marker-end="url(#arrow-coral)" stroke="#ff5c57" fill="none" stroke-width="1.5"/>
+        <text x="990" y="300" font-size="11" fill="#ff5c57" font-family="JetBrains Mono">inject</text>
+
+        <path d="M 430 380 L 200 320 L 200 250" class="arrow" marker-end="url(#arrow-coral)" stroke="#ff5c57" fill="none" stroke-width="1.5"/>
+        <text x="100" y="305" font-size="11" fill="#ff5c57" font-family="JetBrains Mono">new trajectory</text>
+      </svg>
+
+      <p class="footnote">
+        The loop is the whole point. Each completed task feeds the system that helps the <em>next</em> task. <strong style="color: var(--accent-coral);">A self-reinforcing cycle.</strong>
+      </p>
+
+      <aside class="notes">
+        Big slide, take your time. Walk the boxes left to right first — phase 1, phase 2, phase 3. Then trace the loop. "An agent finishes a task — that produces a trajectory — extraction analyses it into tips — they get stored, cleaned up, deduplicated — and on the *next* task, the right ones get pulled back into the prompt." Emphasise the loop. Without it this is just a logging system. With it, it's a learning system. The rest of the talk is just zooming in on each box.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 10 — PHASE 1: COGNITIVE ANALYSIS + ATTRIBUTION
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 1</span> Paper §3.1.1 — §3.1.2 · Cognitive analysis &amp; attribution</div>
+      <h2>Read the agent's mind, then trace causes.</h2>
+
+      <div class="two-col tight" style="margin-top: 1rem; grid-template-columns: 1fr 1fr;">
+
+        <div>
+          <h3 style="font-size: 1.05rem; color: var(--accent-blue); margin-bottom: 0.5rem;">Trajectory Intelligence</h3>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin: 0 0 0.9rem 0; min-height: 2.6em;">An LLM classifies every assistant turn into one of four cognitive modes:</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; font-size: 0.78rem;">
+            <div class="card" style="padding: 1.1rem 1.2rem;">
+              <div class="label" style="color: var(--accent-teal);">analytical</div>
+              <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">examining data, constraints</p>
+            </div>
+            <div class="card" style="padding: 1.1rem 1.2rem;">
+              <div class="label" style="color: var(--accent-teal);">planning</div>
+              <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">formulating action sequences</p>
+            </div>
+            <div class="card" style="padding: 1.1rem 1.2rem;">
+              <div class="label" style="color: var(--accent-yellow);">validation</div>
+              <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">checking prerequisites, results</p>
+            </div>
+            <div class="card" style="padding: 1.1rem 1.2rem;">
+              <div class="label" style="color: var(--accent-coral);">reflection</div>
+              <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">reconsidering, self-correcting</p>
+            </div>
+          </div>
+          <p class="footnote" style="margin-top: 1.2rem;">Plus pattern detection: validation, reflection, self-correction, error recognition, API discovery, efficiency awareness.</p>
+        </div>
+
+        <div>
+          <h3 style="font-size: 1.05rem; color: var(--accent-coral); margin-bottom: 0.5rem;">Decision Attribution</h3>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin: 0 0 0.9rem 0; min-height: 2.6em;">For every outcome, an LLM walks the chain <em>backward</em> to trace the cause:</p>
+          <div style="font-size: 0.85rem;">
+            <div style="border-left: 2px solid var(--accent-red); padding: 0.9rem 1.1rem; margin-bottom: 0.9rem; background: var(--bg-panel); border-radius: 6px;">
+              <strong style="color: var(--accent-red);">Immediate</strong> &nbsp;<span style="color: var(--fg-muted);">→ what directly triggered it</span>
+            </div>
+            <div style="border-left: 2px solid var(--accent-yellow); padding: 0.9rem 1.1rem; margin-bottom: 0.9rem; background: var(--bg-panel); border-radius: 6px;">
+              <strong style="color: var(--accent-yellow);">Proximate</strong> &nbsp;<span style="color: var(--fg-muted);">→ recent decisions that enabled it</span>
+            </div>
+            <div style="border-left: 2px solid var(--accent-teal); padding: 0.9rem 1.1rem; margin-bottom: 0.9rem; background: var(--bg-panel); border-radius: 6px;">
+              <strong style="color: var(--accent-teal);">Root</strong> &nbsp;<span style="color: var(--fg-muted);">→ the underlying issue</span>
+            </div>
+            <div style="border-left: 2px solid var(--accent-blue); padding: 0.9rem 1.1rem; background: var(--bg-panel); border-radius: 6px;">
+              <strong style="color: var(--accent-blue);">Contributing</strong> &nbsp;<span style="color: var(--fg-muted);">→ factors that made it more likely</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="footnote" style="margin-top: 1.2rem;">This is what the paper means by <em>"semantic understanding"</em>: not pattern-matching strings in logs — actually reasoning about <strong style="color: var(--accent-coral);">why</strong> the agent did what it did.</p>
+
+      <aside class="notes">
+        Two LLM passes. The first reads the trajectory and tags each turn with cognitive mode and pattern. The second walks the chain backward — "step 15 failed because of step 12 because of step 7 because of an unverified assumption at step 3." That cause-chain is what makes the eventual *recovery* tip actionable: it can name the *real* trigger, not the symptom. Important contrast: existing memory systems just log "task failed" or "task succeeded." This system logs "task failed because at step 3 the agent assumed payment was configured without checking, and the recovery was to call get_payment_methods() before retrying." That's a different ontology.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 11 — TIP GENERATION (PAPER EXAMPLES)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 1.3</span> Paper §3.1.3 · Tip Generation</div>
+      <h2>Three categories. Same trajectory.</h2>
+      <p style="color: var(--fg-muted); max-width: 64ch; margin-top: -0.3rem;">From the paper's e-commerce checkout example — what each tip type looks like as a structured record:</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.2rem; font-size: 0.74rem;">
+
+        <div class="tip-card" style="font-size: 0.74rem;">
+          <div class="tip-head">
+            <span class="tag cat-strategy">Strategy</span>
+            <span class="tag priority-high">High</span>
+          </div>
+          <div class="tip-title" style="font-size: 0.95rem;">Verify all prerequisites before checkout</div>
+          <div class="tip-row"><span class="k">when</span><span class="v">Task involves checkout, purchase, or payment.</span></div>
+          <div class="tip-row"><span class="k">do</span><span class="v"><code style="font-size: 0.9em;">get_cart_items()</code> → <code style="font-size: 0.9em;">get_shipping_address()</code> → <code style="font-size: 0.9em;">get_payment_methods()</code> before initiating checkout.</span></div>
+        </div>
+
+        <div class="tip-card" style="font-size: 0.74rem;">
+          <div class="tip-head">
+            <span class="tag cat-recovery">Recovery</span>
+            <span class="tag priority-high">High</span>
+          </div>
+          <div class="tip-title" style="font-size: 0.95rem;">Add payment method before retrying checkout</div>
+          <div class="tip-row"><span class="k">when</span><span class="v">Checkout fails with "payment method required".</span></div>
+          <div class="tip-row"><span class="k">do</span><span class="v">Call <code style="font-size: 0.9em;">get_payment_methods()</code>; if empty, <code style="font-size: 0.9em;">add_payment_method()</code>; then retry.</span></div>
+          <div class="tip-row"><span class="k">don't</span><span class="v" style="color: var(--accent-red);">Retry without addressing the missing method.</span></div>
+        </div>
+
+        <div class="tip-card" style="font-size: 0.74rem;">
+          <div class="tip-head">
+            <span class="tag cat-optimization">Optimization</span>
+            <span class="tag priority-medium">Med</span>
+          </div>
+          <div class="tip-title" style="font-size: 0.95rem;">Use <code style="font-size: 0.9em;">empty_cart()</code> for bulk removal</div>
+          <div class="tip-row"><span class="k">when</span><span class="v">Removing all items from a cart.</span></div>
+          <div class="tip-row"><span class="k">do</span><span class="v">Call <code style="font-size: 0.9em;">empty_cart()</code> once instead of looping <code style="font-size: 0.9em;">remove_from_cart(item_id)</code>.</span></div>
+        </div>
+
+      </div>
+
+      <p class="footnote" style="margin-top: 1.2rem;">
+        Same trajectory, three lessons. Each tip carries a <strong style="color: var(--accent-coral);">trigger</strong> (when it applies), <strong style="color: var(--accent-coral);">steps</strong> (what to do), and a <strong style="color: var(--accent-coral);">priority</strong> for ranking — that schema is what makes them retrievable later.
+      </p>
+
+      <aside class="notes">
+        These three are real tip examples from the paper, formatted the way the system actually stores them. The point: this isn't free-form text. Triggers are precise — "Checkout fails with 'payment method required'" is something a future agent's task description can match. Steps are concrete API calls. Priorities let retrieval rank when many tips match. The recovery tip even has a "don't" — negative examples the agent should avoid. The schema is what turns a memory into <em>guidance</em>.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 12 — TASK vs SUBTASK GRANULARITY  [OPTIONAL — skip if running long]
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill" style="background: rgba(154,160,166,0.15); color: var(--fg-muted);">Optional</span> Paper §3.1.4 · Granularity</div>
+      <h2>Tip the whole task, or tip the parts?</h2>
+
+      <div class="two-col" style="margin-top: 1.6rem;">
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">Task-level tips</div>
+          <h3 style="font-size: 1.1rem; color: var(--fg-primary); margin: 0.6rem 0 0.9rem;">Tip the whole trajectory.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.9rem; line-height: 1.55;">Captures end-to-end strategies (e.g. "verify all prerequisites before checkout"). High coverage, low transferability.</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <div class="label" style="color: var(--accent-teal);">Subtask-level tips</div>
+          <h3 style="font-size: 1.1rem; color: var(--fg-primary); margin: 0.6rem 0 0.9rem;">Decompose first, then tip each part.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.9rem; line-height: 1.55;">Authentication / data-retrieval / data-processing / task-completion subtasks recur across apps. Tips on those <em>transfer</em> across tasks.</p>
+        </div>
+      </div>
+
+      <div class="pull" style="margin-top: 2rem; max-width: 60ch; font-size: 1.2rem;">
+        A tip extracted from "Name the artist most recommended on Spotify" can transfer to "Move my go-to-sleep alarm to 20 minutes later" — they share the same authentication and paginated data-retrieval subtasks.
+        <span class="src">— Paper §3.1.4</span>
+      </div>
+
+      <p class="footnote" style="margin-top: 1.6rem;">The paper uses <strong style="color: var(--accent-coral);">both</strong> granularities together. Subtask tips give cross-task transfer; task tips capture the holistic strategy.</p>
+
+      <aside class="notes">
+        OPTIONAL slide. Skip if running long. The insight: most agent tasks decompose into common shapes — auth, fetch, process, report — and tips at *that* level transfer between apps that share those shapes. Spotify's auth and Phone's auth look different on the surface but the same underneath. A subtask-level tip about retrieving credentials applies to both. Task-level tips like "verify prerequisites" are cross-cutting at a different level.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 13 — PHASE 2: STORAGE
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 2</span> Paper §3.2 · Storage &amp; Management</div>
+      <h2>Don't just dump tips in a database.</h2>
+      <p style="color: var(--fg-muted); max-width: 64ch; margin-top: -0.3rem;">A thousand sessions produce thousands of redundant, overlapping, sometimes contradictory tips. Three steps clean them up before they go to disk.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.4rem; font-size: 0.85rem;">
+
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">1 · Generalize</div>
+          <h3 style="font-size: 1.05rem; color: var(--fg-primary); margin: 0.3rem 0 0.5rem;">Strip the specifics.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.85rem;">"Retrieve Spotify password for <code>john.doe@…</code>" → <em>"Retrieve service account credentials"</em></p>
+          <p class="footnote" style="margin-top: 0.6rem;">Entity abstraction · action canonicalization · context removal.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <div class="label" style="color: var(--accent-teal);">2 · Cluster</div>
+          <h3 style="font-size: 1.05rem; color: var(--fg-primary); margin: 0.3rem 0 0.5rem;">Group near-duplicates.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.85rem;">Embed each generalised description; pairwise cosine similarity ≥ <span style="color: var(--accent-yellow); font-family: var(--font-mono);">0.85</span> → cluster.</p>
+          <p class="footnote" style="margin-top: 0.6rem;">Hierarchical agglomerative clustering. Tips from Spotify auth, Venmo login, Phone login all land together.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+          <div class="label" style="color: var(--accent-yellow);">3 · Consolidate</div>
+          <h3 style="font-size: 1.05rem; color: var(--fg-primary); margin: 0.3rem 0 0.5rem;">LLM merges each cluster.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.85rem;">Dedupe identical tips. Resolve conflicts (success-derived beats failure-derived). Synthesize complementary tips into one.</p>
+          <p class="footnote" style="margin-top: 0.6rem;">Output: one canonical tip per cluster, with merged steps and provenance to all source trajectories.</p>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 1.4rem; padding: 0.8rem 1.2rem; border-left: 2px solid var(--accent-coral); background: rgba(255,92,87,0.05); border-radius: 6px;">
+        <p style="margin: 0; color: var(--fg-primary); font-size: 0.95rem;">Each stored tip carries <strong style="color: var(--accent-coral);">two indexes</strong>: a vector embedding for semantic search, and structured metadata (category, priority, application, source trajectories) for filtering and ranking.</p>
+      </div>
+
+      <aside class="notes">
+        Three steps, all on one slide because they're a single conceptual story: prepare → group → merge. Generalisation is where most existing systems quietly cheat — they cluster on raw text, which means "get Spotify password for alice" and "get Spotify password for bob" look like different tips. Strip the entities, embeddings cluster correctly, you get a curated corpus instead of an exponentially-growing junk drawer. Conflict resolution: when two tips disagree, the system trusts the one derived from a *successful* trajectory over one derived from a failed one. That's a clever heuristic.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 14 — PHASE 3: RETRIEVAL
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 3</span> Paper §3.3 · Runtime Retrieval</div>
+      <h2>How a tip finds its way back into a prompt.</h2>
+
+      <div class="two-col tight" style="margin-top: 1rem;">
+
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <div class="label" style="color: var(--accent-teal);">Strategy A · Cosine similarity</div>
+          <h3 style="font-size: 1.05rem; color: var(--fg-primary); margin: 0.3rem 0 0.5rem;">Embed task → match → top-k.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.88rem;">Embed the user's task description, run cosine similarity against every stored tip embedding, keep candidates with similarity <span style="font-family: var(--font-mono); color: var(--accent-yellow);">τ ≥ 0.6</span> and take the top <span style="font-family: var(--font-mono); color: var(--accent-yellow);">k=5</span>. One vector lookup, no LLM call &mdash; fast enough to run on every prompt.</p>
+          <p class="footnote" style="margin-top: 0.6rem;"><strong style="color: var(--accent-coral);">τ = 0.6 is the sweet spot.</strong> Tight enough to skip unrelated tasks; loose enough to match lexically-different phrasings of the same intent.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">Strategy B · LLM-guided</div>
+          <h3 style="font-size: 1.05rem; color: var(--fg-primary); margin: 0.3rem 0 0.5rem;">Reason about context first.</h3>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.88rem;">An LLM detects the application domain and task category, then constructs a metadata-filtered query before the vector search runs. It can infer that "complete my pending checkout" implies <em>payment</em> tips even when the word "payment" never appears in the user's prompt &mdash; the kind of cross-vocabulary reasoning cosine similarity misses entirely.</p>
+          <p class="footnote" style="margin-top: 0.6rem;"><strong style="color: var(--accent-coral);">Worth +7.2pp SGC over cosine alone</strong> &mdash; at the cost of one extra LLM call per task. Best on multi-domain workloads where vocabulary and intent diverge.</p>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1rem; color: var(--fg-muted); margin: 1.4rem 0 0.5rem; font-weight: 500;">What the agent actually sees, prepended to its prompt:</h3>
+<pre style="font-size: 0.5em; margin: 0;"><code class="language-text" style="white-space: pre; color: var(--fg-primary);">[PRIORITY: HIGH] Recovery Tip:
+  When a login attempt fails with "invalid credentials," verify
+  you are using the correct app-specific password by re-calling
+  supervisor.show_account_passwords() and filtering by the target
+  app name.
+
+Apply when: Authentication fails on any app after an initial login attempt.
+Steps:
+  1. Re-retrieve credentials from supervisor
+  2. Filter for the specific app name (exact match)
+  3. Retry login with the correct credentials</code></pre>
+
+      <aside class="notes">
+        Two strategies, two tradeoffs. Cosine is the simple workhorse — embed the task, find similar tip embeddings, take the top few. LLM-guided is the upgrade: it can reason "this task involves checkout therefore payment-related tips matter even if 'payment' isn't in the description." More expensive, more accurate, especially on complex tasks. The injection format at the bottom is what the agent actually sees in its context — priority tag, category, condition, action, steps. It reads like guidance, not a database row. That formatting matters; the paper is explicit that scannable structure helps the model use the tip.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 15 — ACT 4 DIVIDER
+         ════════════════════════════════════════════════════════════════ -->
+    <section class="act-divider" data-background-color="#1c1e22">
+      <div class="act-num">Act 4 of 5</div>
+      <h1>Does it actually work?</h1>
+      <p class="act-sub">Numbers from the AppWorld benchmark — and the one number worth the most attention.</p>
+      <aside class="notes">
+        Quick transition. "We've seen the architecture. Time for the empirical question — does this thing actually move the needle? IBM evaluated on AppWorld, a benchmark designed for multi-app agentic tasks. The headline numbers are real, but I want to spend most of our time on a subtler one."
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 16 — APPWORLD SETUP  [OPTIONAL]
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill" style="background: rgba(154,160,166,0.15); color: var(--fg-muted);">Optional</span> Paper §4.1 · The benchmark</div>
+      <h2>Setting the stage.</h2>
+
+      <div class="two-col tight top" style="margin-top: 1.8rem;">
+
+        <div>
+          <h3 style="font-size: 1.1rem; color: var(--accent-blue); margin-bottom: 0.9rem;">AppWorld</h3>
+          <p style="color: var(--fg-muted); font-size: 0.95rem; line-height: 1.55; margin: 0;">Multi-app agentic benchmark — e-commerce, email, calendar, file management. Each task averages <strong style="color: var(--fg-primary);">1.8 apps, 9.5 API calls, up to 26 APIs</strong> on the hardest tasks.</p>
+          <p class="footnote" style="margin-top: 1.2rem;">Single-agent ReAct loop · GPT-4.1 · max 30 steps · success only if all unit tests pass.</p>
+        </div>
+
+        <div>
+          <h3 style="font-size: 1.1rem; color: var(--accent-coral); margin-bottom: 0.9rem;">Two metrics, very different stories</h3>
+          <div style="font-size: 0.9rem; line-height: 1.55;">
+            <div style="padding: 0.9rem 1.1rem; margin-bottom: 0.9rem; background: var(--bg-panel); border-left: 2px solid var(--accent-yellow); border-radius: 6px;"><span style="font-family: var(--font-mono); color: var(--accent-yellow);">TGC</span> &nbsp;<strong>Task Goal Completion</strong> &mdash; <span style="color: var(--fg-muted);">% of tasks where every unit test passes.</span></div>
+            <div style="padding: 0.9rem 1.1rem; background: var(--bg-panel); border-left: 2px solid var(--accent-coral); border-radius: 6px;"><span style="font-family: var(--font-mono); color: var(--accent-yellow);">SGC</span> &nbsp;<strong>Scenario Goal Completion</strong> &mdash; <span style="color: var(--fg-muted);">% where <em>every variant</em> of a scenario passes. Stricter — punishes inconsistency.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="footnote" style="margin-top: 2rem;">Held-out test partition (test-normal): tasks the system has never seen. <strong style="color: var(--accent-coral);">This is the hard one</strong> — train/dev gains can be memorisation; test-normal gains are real generalisation.</p>
+
+      <aside class="notes">
+        OPTIONAL slide. Skip if running long. The key thing for the next slide is the difference between TGC and SGC. TGC is "did this run succeed?" SGC is "did all three of the related runs succeed?" SGC punishes flakiness — it's the metric that says "was this learning *consistent*" not just "did it work once." That's why SGC numbers will be the headline.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 17 — HEADLINE RESULTS — BIG STAT
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 4</span> Paper §4.2 · Held-out test results</div>
+      <h2 style="font-size: 2.2rem;">The numbers that matter.</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.5rem; margin-top: 2rem; align-items: end;">
+
+        <div class="stat-block">
+          <div class="num">+14.3<span style="font-size: 0.4em; color: var(--fg-muted);">pp</span></div>
+          <div class="label">Aggregate SGC lift on held-out tasks</div>
+          <div class="sub">50.0% &rarr; 64.3% · subtask + LLM</div>
+        </div>
+
+        <div class="stat-block">
+          <div class="num teal">+28.5<span style="font-size: 0.4em; color: var(--fg-muted);">pp</span></div>
+          <div class="label">SGC lift on Difficulty-3 tasks</div>
+          <div class="sub">19.1% &rarr; 47.6% on the hardest tier</div>
+        </div>
+
+        <div class="stat-block">
+          <div class="num yellow">149%</div>
+          <div class="label">Relative improvement on hard tasks</div>
+          <div class="sub">"the harder the task, the bigger the lift"</div>
+        </div>
+
+      </div>
+
+      <p style="margin-top: 2.4rem; color: var(--fg-muted); font-size: 1rem; max-width: 70ch;">
+        Tasks the system was <em>never trained on</em>, evaluated by automated unit tests. The gain is biggest exactly where you'd want it &mdash; on the multi-step tasks where mistakes compound.
+      </p>
+
+      <aside class="notes">
+        BIG SLIDE. Slow down here. Let the numbers sit. The first number — +14.3pp — is on tasks the system has never seen. That's generalisation, not memorisation. The second — +28.5pp — is on the hardest difficulty tier; agents that previously succeeded 19% of the time now succeed 47% of the time. The third — 149% — is the relative version of the same story: this kind of memory pays off most where the agent needs help most. Optional aside: simple tasks barely benefit because there's nothing to learn. Hard tasks benefit enormously because the difference between "knows the right pattern" and "rediscovers it" is huge.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 18 — TGC vs SGC: THE CONSISTENCY STORY
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 4</span> The most insight-dense number</div>
+      <h2>Why <span style="color: var(--accent-yellow); font-family: var(--font-mono); font-weight: 500;">SGC</span> &gt; <span style="color: var(--accent-blue); font-family: var(--font-mono); font-weight: 500;">TGC</span> matters more than the headline.</h2>
+
+      <div class="two-col top" style="margin-top: 1rem;">
+        <div>
+          <p class="lede" style="font-size: 1.3rem;">
+            Memory's biggest impact isn't <em>"can the agent do this task?"</em> &mdash;
+            it's <strong>"does it do it the same way every time?"</strong>
+          </p>
+          <p style="color: var(--fg-muted); margin-top: 1rem; font-size: 0.95rem;">
+            On test-normal, TGC went up 3.6pp. SGC went up <strong style="color: var(--accent-coral);">14.3pp</strong> &mdash; nearly 4× more. The memory system reduces <em>behavioural variance</em>: same scenario, three variants, all three pass instead of two.
+          </p>
+          <p style="color: var(--fg-muted); margin-top: 1rem; font-size: 0.95rem;">
+            That's the "I fixed this once and it worked, but the second time I tried, the agent did it differently and broke" pattern. Recovery and strategy tips encode prerequisite verification &mdash; <em>so it stops being random</em>.
+          </p>
+        </div>
+
+        <div>
+          <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+            <div class="label" style="color: var(--accent-yellow);">Test-Normal · Aggregate</div>
+            <table style="width: 100%; margin-top: 0.6rem; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--fg-muted); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;">
+                  <th style="text-align: left; padding: 0.4rem 0.4rem 0.4rem 0;">config</th>
+                  <th style="text-align: right; padding: 0.4rem;">TGC</th>
+                  <th style="text-align: right; padding: 0.4rem 0 0.4rem 0.4rem;">SGC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding: 0.5rem 0; color: var(--fg-muted);">Baseline (no memory)</td><td style="text-align: right; padding: 0.5rem; font-family: var(--font-mono);">69.6</td><td style="text-align: right; padding: 0.5rem 0; font-family: var(--font-mono);">50.0</td></tr>
+                <tr><td style="padding: 0.5rem 0;">Subtask + Cosine (τ=0.6)</td><td style="text-align: right; padding: 0.5rem; font-family: var(--font-mono); color: var(--accent-teal);">73.8 <span style="color: var(--fg-dim);">+4.2</span></td><td style="text-align: right; padding: 0.5rem 0; font-family: var(--font-mono); color: var(--accent-teal);">57.1 <span style="color: var(--fg-dim);">+7.1</span></td></tr>
+                <tr><td style="padding: 0.5rem 0;">Subtask + LLM-guided</td><td style="text-align: right; padding: 0.5rem; font-family: var(--font-mono); color: var(--accent-teal);">73.2 <span style="color: var(--fg-dim);">+3.6</span></td><td style="text-align: right; padding: 0.5rem 0; font-family: var(--font-mono); color: var(--accent-coral); font-weight: 600;">64.3 <span style="color: var(--accent-coral);">+14.3</span></td></tr>
+              </tbody>
+            </table>
+            <p class="footnote" style="margin-top: 0.6rem;">LLM-guided retrieval barely helps individual task success (<span style="font-family: var(--font-mono);">+3.6 vs +4.2</span>) &mdash; but lifts <em>consistency</em> nearly twice as much.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes">
+        This is the most underrated insight in the paper. SGC vs TGC is the difference between "can my agent do X?" and "can my agent do X reliably?" Anyone in the room who's used Claude Code or Cursor in a real job knows the second question is the one that actually matters — the agent that nails it 8 times out of 10 but fails the 9th in a weird way is more frustrating than one that succeeds 7 out of 10 consistently. The memory system reduces *behavioural variance* — it teaches the agent to verify the same prerequisites every time, which means scenario variants stop randomly failing. That's why SGC moves twice as much as TGC. Pause for discussion here — this is where the paper's thesis becomes felt rather than abstract.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 19 — RELATED WORK LANDSCAPE  [OPTIONAL]
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill" style="background: rgba(154,160,166,0.15); color: var(--fg-muted);">Optional</span> Paper §5 · Related Work</div>
+      <h2>Where this sits in the agent-memory landscape.</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 1rem; font-size: 0.85rem;">
+
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">Mem0 · A-MEM</div>
+          <p style="margin: 0.3rem 0 0; color: var(--fg-muted);">Stores <em>declarative</em> facts from conversations. No causal analysis. No category structure.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <div class="label" style="color: var(--accent-teal);">AWM (Agent Workflow Memory)</div>
+          <p style="margin: 0.3rem 0 0; color: var(--fg-muted);">Reusable workflows from <em>successful</em> trajectories only. Misses recovery and inefficiency learning.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+          <div class="label" style="color: var(--accent-yellow);">ReasoningBank</div>
+          <p style="margin: 0.3rem 0 0; color: var(--fg-muted);">Closest cousin: distils <em>reasoning strategies</em> from successes and failures. Different abstraction level &mdash; meta-cognitive vs concrete.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-coral);">
+          <div class="label" style="color: var(--accent-coral);">ACE (Agentic Context Engineering)</div>
+          <p style="margin: 0.3rem 0 0; color: var(--fg-muted);">Evolves an agent's context as a free-form playbook. Less structured; harder to selectively retrieve. +10.6pp on AppWorld.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--fg-muted); grid-column: span 2;">
+          <div class="label" style="color: var(--fg-muted);">This paper</div>
+          <p style="margin: 0.3rem 0 0; color: var(--fg-muted);">Structured · categorized (strategy / recovery / optimization) · causally attributed · provenance-traced · selectively retrieved by metadata.</p>
+        </div>
+
+      </div>
+
+      <aside class="notes">
+        OPTIONAL slide. Skip if running long. If you stay on it: the punchline is "this isn't replacing those approaches, it's filling the gap they leave." Mem0 stores facts and is good at it. AWM stores workflows and is good at it. This paper stores *learnings about how the agent reasons* — that's a different thing. ReasoningBank is the closest comparable; the difference is abstraction level. The strategy/recovery/optimization trichotomy is unique here.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 20 — ACT 5 DIVIDER
+         ════════════════════════════════════════════════════════════════ -->
+    <section class="act-divider" data-background-color="#1c1e22">
+      <div class="act-num">Act 5 of 5</div>
+      <h1>From paper to repo.</h1>
+      <p class="act-sub">I built it. Here's what stuck, what I cut, and what surprised me.</p>
+      <aside class="notes">
+        Tone shift. We've been in paper-summary mode. Now we get personal — what does this look like when you actually try to ship it for Claude Code? The next few slides are the bit that's most worth discussion. I'll show real code, real numbers from my own corpus, and an honest list of what I deliberately cut from the MVP.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 21 — REPO MAP
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 5</span> The shape of <code>future_memory</code></div>
+      <h2>Paper sections → files I had to write.</h2>
+
+      <div style="margin-top: 1.2rem; font-size: 0.85rem;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="color: var(--fg-muted); font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <th style="text-align: left; padding: 0.6rem 0.4rem 0.6rem 0;">Paper §</th>
+              <th style="text-align: left; padding: 0.6rem 0.4rem;">What it does</th>
+              <th style="text-align: left; padding: 0.6rem 0 0.6rem 0.4rem;">In <code>src/fm/</code></th>
+            </tr>
+          </thead>
+          <tbody style="color: var(--fg-primary);">
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">— · setup</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Read Claude Code JSONL session logs into structured turns.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">parser.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.4</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Decompose a session into logical subtasks.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">segmenter.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.1</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cognitive analysis of agent thoughts.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">intelligence.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Decision attribution &mdash; what caused what.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">attribution.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-blue);">§3.1.3</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Tip generation per subtask.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">extractor.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-teal);">§3.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cluster + LLM-merge near-duplicates.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">consolidator.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-teal);">§3.2</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">SQLite + vector blob storage.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">store.py</td></tr>
+            <tr><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-yellow);">§3.3</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);">Cosine retrieval + abstracted query.</td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">retriever.py</td></tr>
+            <tr style="border-top: 1px solid rgba(255,255,255,0.1);"><td style="padding: 0.55rem 0.4rem 0.55rem 0; font-family: var(--font-mono); color: var(--accent-coral);">— · adapt</td><td style="padding: 0.55rem 0.4rem; color: var(--fg-muted);"><strong style="color: var(--accent-coral);">Claude Code integration via hooks.</strong></td><td style="padding: 0.55rem 0 0.55rem 0.4rem; font-family: var(--font-mono); color: var(--accent-coral);">.claude/hooks/*.sh</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="footnote" style="margin-top: 1rem;">14 Python files. 1,246 tips extracted across 109 sessions in my own corpus. The pipeline runs end-to-end every time a Claude Code session compacts.</p>
+
+      <aside class="notes">
+        Walk this top to bottom. Each row is a paper section and the file that implements it. Some have direct mappings (intelligence.py is §3.1.1). Others are pure adaptation glue — parser.py and the hooks aren't in the paper at all because the paper is benchmark-driven. To make this work for Claude Code I had to write a JSONL parser for Claude's session format and shell scripts that wire into the UserPromptSubmit and PreCompact hooks. That's the part that's mine, not the paper's. Show the row counts: 1,246 tips out of 109 sessions, on a real machine. This isn't theoretical.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 22 — PHASE 1 CODE  [OPTIONAL]
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill" style="background: rgba(154,160,166,0.15); color: var(--fg-muted);">Optional</span> Phase 1 in code</div>
+      <h2>JSONL → turns → subtasks → tips.</h2>
+
+      <div class="two-col tight" style="margin-top: 1rem;">
+        <div>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Three sequential LLM passes. Each one is a subprocess call to <code>claude</code> CLI with a different prompt template.</p>
+<pre style="font-size: 0.48em;"><code class="language-python">def segment_session(turns, *, session_id, model="sonnet"):
+    """Decompose a session into logical subtasks (§3.1.4)."""
+    prompt = build_segmentation_prompt(turns)
+    raw = call_claude(prompt, model=model)
+    if raw is None:
+        return [_whole_session_subtask(turns, session_id)]
+    return _parse_segmentation(raw, turns, session_id)
+
+
+def _extract_tips_from_subtask(subtask, intel, attrib, **ctx):
+    """Generate strategy / recovery / optimization tips."""
+    prompt = build_tips_prompt(subtask, intel, attrib, **ctx)
+    raw = call_claude(prompt, model=ctx["model"])
+    return _parse_tips_json(raw, **ctx)
+</code></pre>
+        </div>
+        <div>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">The whole pipeline kicks off when a session compacts. The hook fires <code>fm extract &lt;jsonl&gt;</code> in the background.</p>
+<pre style="font-size: 0.48em;"><code class="language-bash"># .claude/hooks/fm-pre-compact.sh
+PAYLOAD=$(cat)
+TRANSCRIPT=$(jq -r '.transcript_path' &lt;&lt;&lt;"$PAYLOAD")
+SESSION=$(jq -r '.session_id'      &lt;&lt;&lt;"$PAYLOAD")
+
+LOG="$HOME/.future_memory/logs/extract-$SESSION.log"
+
+nohup fm extract "$TRANSCRIPT" &gt;"$LOG" 2&gt;&amp;1 &amp;
+fm session clear-injections "$SESSION"</code></pre>
+          <p class="footnote" style="margin-top: 0.6rem;">Background process &mdash; the user gets compaction-finished feedback immediately; extraction runs for the next few minutes.</p>
+        </div>
+      </div>
+
+      <aside class="notes">
+        OPTIONAL slide. If you skip, the next slide still works. If you keep it: the left column is the extraction pipeline boiled down to its essentials — segment, then for each subtask run intelligence + attribution + tip generation. Each is an LLM call. The right column is where it gets practical: the PreCompact hook captures the transcript path and shells out to extract in the background. The whole reason this works for Claude Code is because the system already exposes hooks at the right lifecycle points. Without those, you'd be polling JSONL files on a timer.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 23 — PHASE 2 CODE
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 2 in code</span></div>
+      <h2>Cluster, then merge.</h2>
+      <p style="color: var(--fg-muted); max-width: 64ch; margin-top: -0.3rem;">Pairwise cosine similarity union-finds tips into clusters. The LLM decides what to do with each cluster.</p>
+
+<pre style="font-size: 0.46em; margin-top: 1rem;"><code class="language-python">def find_clusters(store, threshold=0.88, tip_ids=None):
+    """Find groups of tips with pairwise cosine similarity >= threshold."""
+    rows = store.get_tips_with_embeddings(get_available_provider())
+    embeddings = {row["id"]: row["embedding"] for row in rows}
+    ids = list(embeddings.keys())
+
+    uf = _UnionFind(ids)                     # disjoint-set
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            sim = _cosine_similarity(embeddings[ids[i]], embeddings[ids[j]])
+            if sim >= threshold:
+                uf.union(ids[i], ids[j])     # merge into the same cluster
+
+    return [Cluster(tips=tips_in(group)) for group in uf.clusters() if len(group) >= 2]
+
+
+def decide_merge(cluster, *, model="sonnet"):
+    """LLM judges: are these the same tip? Synthesise into one canonical version."""
+    raw = call_claude(build_merge_prompt(cluster), model=model)
+    return _parse_merge_response(raw, source_tips=cluster.tips)
+</code></pre>
+
+      <p class="footnote" style="margin-top: 1rem;">
+        <strong style="color: var(--accent-coral);">Two phases on purpose.</strong> Embedding similarity is cheap and finds candidates. The LLM is expensive but reasons about whether the candidates actually convey the same insight &mdash; and synthesises them into a single tip with merged provenance.
+      </p>
+
+      <aside class="notes">
+        The pattern: cheap-first, expensive-second. Cosine similarity at 0.88 is a recall-oriented filter — it casts a wide net, lots of pairs get clustered together. The LLM then makes the precision call, "are these actually the same tip or just superficially similar?" This is a common pattern in modern ML pipelines — fast vector search to narrow the candidate space, slower reasoning model to make the actual decision. Worth pointing out: the threshold (0.88) is empirical; the paper found ~0.85 worked for AppWorld; I tuned it slightly tighter for my Claude Code corpus because the embeddings are richer.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 24 — THE PUNCHLINE: PHASE 3 + HOOKS
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Phase 3 in code</span> The Claude Code integration</div>
+      <h2>How a tip lands inside your next prompt.</h2>
+
+      <div class="two-col tight" style="margin-top: 0.6rem;">
+
+        <div>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">The retriever — runs on every prompt:</p>
+<pre style="font-size: 0.48em;"><code class="language-python">def retrieve_tips(query, store, *, threshold=0.6,
+                  top_k=5, session_id=None):
+    """Cosine retrieval with abstracted query."""
+    # 1. strip entities so the query matches generalised tips
+    abstracted = abstract_query(query)
+    q = embed_text(abstracted)
+
+    stored = store.get_tips_with_embeddings(q.provider)
+    seen = store.get_injected_tip_ids(session_id) or set()
+
+    scored = []
+    for tip in stored:
+        if tip["id"] in seen:                # dedup per session
+            continue
+        s = _cosine_similarity(q.vector, tip["embedding"])
+        if s &gt;= threshold:
+            scored.append((s, tip))
+
+    scored.sort(reverse=True)
+    return [store.get_tip(t["id"]) for _, t in scored[:top_k]]
+</code></pre>
+        </div>
+
+        <div>
+          <p style="color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Wired to Claude Code via two settings.json hooks:</p>
+<pre style="font-size: 0.48em;"><code class="language-json">{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash ~/.claude/hooks/fm-retrieve.sh",
+        "timeout": 10
+      }]
+    }],
+    "PreCompact": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash ~/.claude/hooks/fm-pre-compact.sh",
+        "timeout": 300
+      }]
+    }]
+  }
+}</code></pre>
+          <p class="footnote" style="margin-top: 0.5rem;">
+            <strong style="color: var(--accent-coral);">UserPromptSubmit</strong> &rarr; tips inject before reasoning starts.<br>
+            <strong style="color: var(--accent-coral);">PreCompact</strong> &rarr; the session's transcript gets extracted into new tips just before its context gets discarded.
+          </p>
+        </div>
+
+      </div>
+
+      <p style="margin-top: 1.2rem; padding: 0.8rem 1.2rem; border-left: 2px solid var(--accent-coral); background: rgba(255,92,87,0.05); border-radius: 6px; font-size: 0.92rem;">
+        <strong style="color: var(--accent-coral);">This is the moment.</strong> Every Claude Code prompt I send now goes through this retriever. Every session that compacts feeds new tips back. The paper described the loop &mdash; this is the loop, hooked into a real agent system, running on my laptop right now.
+      </p>
+
+      <aside class="notes">
+        THE PUNCHLINE SLIDE. Slow down. Two important notes. First, abstract_query: before embedding the user's prompt, we make an LLM call to strip entities — same trick the paper uses on subtask descriptions during clustering, applied symmetrically to queries. That's how "fix the auth bug for alice" matches a tip extracted from a session about bob. Second, the dedup-within-session: tips already injected this session don't get re-injected — otherwise you'd see the same tip ten times across one conversation. Third — and this is the moment — point at the settings.json. *That* is the integration. Two hook entries, two shell scripts, that's it. The pipeline is hundreds of lines of Python, but the *integration* with Claude Code is twelve lines of JSON. That's a beautiful API design moment for the Claude Code team. The paper describes a generic agent system; making it work for a specific agent (Claude Code) was almost trivially easy because the hooks were already there.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 25 — DID IT ACTUALLY WORK? (real baseline → post-injection)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 5</span> The honest answer</div>
+      <h2>Did it actually work, on <em>my</em> machine?</h2>
+      <p style="color: var(--fg-muted); max-width: 72ch;">
+        Same metrics, same filter, same sampling on both sides &mdash; pre-injection sessions vs sessions after I turned the loop on. <strong style="color: var(--accent-coral);">One number moved, hard.</strong> The others didn't.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 1.8rem; margin-top: 1.6rem;">
+
+        <!-- the headline metric: repeated-op rate -->
+        <div class="card" style="border-left: 3px solid var(--accent-teal); padding: 1.9rem 2.2rem;">
+          <div class="label" style="color: var(--accent-teal);">Repeated-operation rate &mdash; the optimization metric</div>
+          <div style="display: flex; align-items: baseline; gap: 1.4rem; margin: 0.9rem 0 0.7rem;">
+            <span style="font-family: var(--font-serif); font-size: 4rem; color: var(--fg-muted); line-height: 1;">36.0%</span>
+            <span style="color: var(--fg-dim); font-size: 1.6rem;">&rarr;</span>
+            <span style="font-family: var(--font-serif); font-size: 4rem; color: var(--accent-teal); line-height: 1; font-weight: 500;">11.8%</span>
+            <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-coral); margin-left: auto;">&minus;67% relative</span>
+          </div>
+          <p style="margin: 0; color: var(--fg-muted); font-size: 0.95rem; line-height: 1.5;">
+            Share of turns where the agent calls the same tool back-to-back. This is the inefficiency the paper's <em>optimization</em> tip category exists to teach away &mdash; "use <code>bulk_op</code> instead of looping <code>single_op</code>." It moved by two-thirds.
+          </p>
+        </div>
+
+        <!-- the flat metrics: error & recovery -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="card" style="padding: 1rem 1.2rem;">
+            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Error rate</div>
+            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">6.19%</span>
+              <span style="color: var(--fg-dim);">&rarr;</span>
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">7.77%</span>
+              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
+            </div>
+          </div>
+          <div class="card" style="padding: 1rem 1.2rem;">
+            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Recovery rate</div>
+            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">49.8%</span>
+              <span style="color: var(--fg-dim);">&rarr;</span>
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">48.3%</span>
+              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
+            </div>
+          </div>
+          <div class="card" style="padding: 1rem 1.2rem;">
+            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Avg retries after error</div>
+            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">1.47</span>
+              <span style="color: var(--fg-dim);">&rarr;</span>
+              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">1.86</span>
+              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p style="margin-top: 1.4rem; color: var(--fg-muted); font-size: 0.95rem;">
+        The story is almost too clean: the metric tip injection <em>directly targets</em> dropped, the metrics it doesn't directly target stayed flat. That's an <strong style="color: var(--accent-coral);">internally-consistent result</strong>, not a coincidence &mdash; even though the absolute numbers are noisy.
+      </p>
+
+      <p class="footnote" style="margin-top: 1.2rem;">
+        Sample: <strong style="color: var(--fg-primary);">300 pre-injection sessions</strong> (before 2026-03-30) vs <strong style="color: var(--fg-primary);">300 post-injection sessions</strong> (after). Same <code>min_turns=0</code> filter on both sides. Anecdote not proof &mdash; but a useful anecdote.
+      </p>
+
+      <aside class="notes">
+        Important: the first time I ran this comparison I had asymmetric filtering &mdash; the original baseline.json was computed with no min_turns and my post-snapshot used min_turns=2. That apples-to-oranges run produced "everything looks average" numbers and a confusing story. After fixing the filter, the real result is much sharper: the paper's optimization-category metric dropped 67%, the other rates stayed flat. That's exactly the shape you'd predict if the system is doing what it's supposed to do — optimization tips reduce inefficient repetition; they don't directly fix bugs or recovery behaviour. Talking-point: this is also a lesson about benchmarking your own AI tools. Comparison filters need to match. I had to rerun this once to find the real result.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 26 — A TIP'S LIFECYCLE  (animated terminal demo)
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 5</span> One tip's lifecycle &mdash; real corpus, real timestamps</div>
+      <h2>The loop, watched in slow motion.</h2>
+      <p style="color: var(--fg-muted); max-width: 70ch;">
+        This is a tip that's been retrieved <strong style="color: var(--accent-coral);">175 times across 169 distinct sessions</strong> in three weeks. From discovery to reuse, with the actual log lines:
+      </p>
+
+      <div class="terminal-demo">
+        <div class="term-window">
+          <div class="term-titlebar">
+            <span class="term-dot red"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+            <span class="term-title">future_memory · session lifecycle</span>
+          </div>
+          <div class="term-body">
+
+            <div class="term-line stage-marker" style="--d:0s">────────  APR 1  ·  the lesson is born  ────────</div>
+            <div class="term-line narr" style="--d:1.5s">I'm wiring up a new pipeline stage. It won't connect to the upstream</div>
+            <div class="term-line narr" style="--d:2.6s">data because the field names don't match what I assumed. <span class="hl-dim">~90 minutes</span></div>
+            <div class="term-line narr" style="--d:3.7s">of debugging later, I figure out the fix. Session ends.</div>
+            <div class="term-line out" style="--d:5.4s">  <span class="hl-dim">↳ PreCompact hook fires</span> · fm extract runs in the background</div>
+            <div class="term-line out" style="--d:6.5s">  <span class="hl-dim">↳ 8 subtasks identified</span> · 4 structured tips generated · stored</div>
+            <div class="term-line out tip-source" style="--d:7.8s">     new tip · <span class="hl-teal">strategy</span> · <span class="hl-coral">high</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl-yellow">"Read adjacent pipeline stages before writing new code"</span></div>
+
+            <div class="term-line stage-marker" style="--d:11s">────────  APR 20  ·  three weeks later, the lesson returns  ────────</div>
+            <div class="term-line narr" style="--d:12.5s">Different project. Different task on the surface — I want lint checks</div>
+            <div class="term-line narr" style="--d:13.6s">verified against a live pipeline. I don't remember the April 1 fix.</div>
+            <div class="term-line" style="--d:15s"><span class="prompt">›</span> <span class="cmd">claude "verify newly implemented lint checks against the live pipeline"</span></div>
+            <div class="term-line out" style="--d:16.4s">  <span class="hl-dim">↳ UserPromptSubmit hook fires</span> · before Claude reads my prompt</div>
+            <div class="term-line out" style="--d:17.5s">  <span class="hl-dim">↳ task description embedded · cosine-matched against 1,088 tips</span></div>
+            <div class="term-line out" style="--d:18.6s">  <span class="hl-dim">↳ winner @ 0.65:</span> the April 1 tip about pipeline stages</div>
+
+            <div class="term-line tip-injection" style="--d:20.4s">
+              <span class="hl-coral">↓</span> <span class="hl-dim">prepended to context, before reasoning starts:</span><br>
+              <span class="hl-coral">[PRIORITY: HIGH]</span> <span class="hl-teal">Strategy Tip:</span><br>
+              &nbsp;&nbsp;When implementing a new pipeline stage, read the adjacent upstream<br>
+              &nbsp;&nbsp;and downstream stages first to discover the exact field names and<br>
+              &nbsp;&nbsp;data contracts before writing a single line of code.<br>
+              &nbsp;&nbsp;<span class="hl-dim">Source:</span> session e36c96ef (Apr 1) — <span class="hl-yellow">the lesson I had to learn the hard way</span>
+            </div>
+
+            <div class="term-line narr final" style="--d:25s">The agent starts with the lesson in scope. <span class="hl-coral">No re-discovery.</span></div>
+            <div class="term-line narr final" style="--d:26.2s">This is the <span class="hl-coral">169th distinct session</span> where this single tip has fired.</div>
+
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes">
+        Walk this slowly during the talk. The story is the timeline: April 1 — the agent and I are wrestling with some pipeline schema mismatch. Session ends, gets compacted, the hook fires, extract runs, tip is born. Three weeks later — different session, different topic on the surface (lint verification) but the underlying subtask shape (working in a multi-stage pipeline) matched. Cosine similarity catches it. Tip gets injected. Agent has prerequisite-verification advice in scope before reasoning even starts. That's the loop. The 169 distinct sessions number is the punchline: the system isn't just learning — it's learning *transferably*, across projects, across weeks. Pause here for questions before moving on.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 27 — WHAT I CUT + WHAT'S NEXT
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Act 5</span> Honest tradeoffs</div>
+      <h2>What I left out &mdash; on purpose.</h2>
+      <p style="color: var(--fg-muted); max-width: 60ch; margin-top: -0.3rem;">An MVP isn't the paper. Here's what I cut, why, and where I'd go next.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-top: 1.4rem; font-size: 0.92rem;">
+
+        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+          <div class="label" style="color: var(--accent-yellow);">Cut · Dual-level tip generation</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Paper produces both <em>domain-specific</em> and <em>generic</em> tips from the same trajectory in a single pass. I generate one set. Coverage suffers in novel domains where domain-specific tips don't match.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">Cost to add: another structured prompt and a second tip-write per subtask. Likely worth it.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+          <div class="label" style="color: var(--accent-yellow);">Cut · LLM-guided retrieval</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Worth +7.2pp SGC over cosine alone in the paper &mdash; but the cost is one extra LLM call <em>per prompt</em> the user sends. Cosine ships first, LLM-guided is Phase 4.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">Trade-off: latency on every interaction vs. cleaner cross-vocab matching. Punt until the corpus is big enough to need it.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+          <div class="label" style="color: var(--accent-yellow);">Cut · Description generalization pass</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">Paper has a dedicated LLM step that strips entity names, canonicalizes verbs, and removes downstream context <em>before</em> clustering. I rely on the segmenter doing this implicitly.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">Result: more near-duplicate clusters than there should be. Consolidation catches most but not all.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-coral);">
+          <div class="label" style="color: var(--accent-coral);">Next · "Design principle" tip category</div>
+          <p style="margin: 0.4rem 0 0; color: var(--fg-muted);">A fourth category for meta-cognitive lessons, closer to ReasoningBank: "when calling an external API in a loop, think rate limits"; "always run pip-show before importing." Different abstraction level.</p>
+          <p class="footnote" style="margin-top: 0.7rem;">Would need its own extraction prompt tuned for reasoning patterns rather than concrete actions.</p>
+        </div>
+
+      </div>
+
+      <p class="footnote" style="margin-top: 1.6rem; font-size: 0.85rem; line-height: 1.5;">
+        Honest about the gap, not embarrassed by it. Paper claims <strong style="color: var(--accent-coral);">+14.3pp SGC</strong> on the full system; with my cuts I'd expect closer to <strong style="color: var(--accent-coral);">+7-8pp</strong> on the same benchmark. Worth it for the smaller surface area &mdash; iterating on retrieval quality is much cheaper than iterating on the full extraction pipeline.
+      </p>
+
+      <aside class="notes">
+        Be honest here. The paper's headline number is on the *full* system. I shipped a smaller version on purpose — fewer LLM calls per session, less prompt complexity. The cuts are real and they cost some performance. Naming them helps the audience map the paper's structure to engineering reality. The "next" item is a category I'd add that *isn't* in the paper — it's closer to ReasoningBank's meta-cognitive lessons. The paper's three categories are concrete-action-shaped; sometimes what you want to remember is closer to a design principle ("don't use sed on JSON," "always pip-show before importing"). That'd be a small extension.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 26 — THANKS / REPO QR
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label" style="text-align: center;"><span class="pill">Thanks</span> One last thing</div>
+      <h2 style="text-align: center;">Thanks for sitting through it.</h2>
+      <p style="text-align: center; color: var(--fg-muted); max-width: 56ch; margin: 0.4rem auto 0;">
+        Scan it, fork it, break it, tell me what's wrong.
+      </p>
+
+      <div style="display: flex; justify-content: center; margin-top: 1.8rem;">
+        <div style="
+          padding: 1.4rem;
+          background: var(--bg-panel);
+          border-radius: 14px;
+          border: 1px solid rgba(10, 54, 255, 0.22);
+          width: 320px; height: 320px;
+          box-sizing: content-box;
+          display: flex; align-items: center; justify-content: center;
+        ">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" width="100%" height="100%" shape-rendering="crispEdges" aria-label="QR code: github.com/Phluxxed/t-mem"><defs><clipPath id="qrCenter"><circle cx="18.5" cy="18.5" r="3.2"/></clipPath></defs><path stroke="#f5f6f7" d="M2 2.5h7m1 0h2m2 0h2m1 0h10m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m3 0h1m2 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m5 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m1 0h1m3 0h6m-22 1h1m2 0h1m2 0h1m1 0h2m2 0h1m4 0h2m1 0h1m3 0h3m1 0h2m-33 1h1m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m3 0h3m-28 1h5m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m-31 1h1m1 0h2m2 0h1m3 0h1m6 0h4m1 0h3m-27 1h2m2 0h3m1 0h2m4 0h2m1 0h1m1 0h1m2 0h1m1 0h3m4 0h2m-33 1h1m2 0h3m3 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h4m3 0h1m-33 1h2m1 0h1m1 0h2m3 0h1m2 0h3m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m-31 1h2m2 0h1m3 0h2m1 0h4m4 0h3m2 0h1m3 0h1m-29 1h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m-33 1h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m4 0h2m-32 1h2m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-31 1h1m1 0h1m2 0h1m1 0h3m4 0h1m1 0h4m3 0h1m1 0h2m2 0h1m-32 1h7m2 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1m-31 1h2m2 0h1m1 0h2m3 0h3m1 0h1m1 0h2m4 0h3m2 0h4m-33 1h2m1 0h1m1 0h5m1 0h1m4 0h2m1 0h2m4 0h2m2 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m2 0h1m2 0h5m1 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h1m1 0h2m2 0h4m2 0h3m1 0h2m1 0h7m1 0h1m-24 1h5m2 0h1m1 0h6m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m2 0h2m3 0h3m2 0h1m1 0h1m2 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h3m1 0h2m3 0h7m-31 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m4 0h1m1 0h4m-32 1h1m1 0h3m1 0h1m11 0h1m4 0h1m1 0h1m1 0h3m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h6m2 0h2m1 0h4m1 0h2m-29 1h7m3 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h2m2 0h1"/><path stroke="#0a36FF" d="M2 2.5h7m1 0h2m2 0h2m1 0h10m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m3 0h1m2 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m5 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m3 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m1 0h1m3 0h6m-22 1h1m2 0h1m2 0h1m1 0h2m2 0h1m4 0h2m1 0h1m3 0h3m1 0h2m-33 1h1m2 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m3 0h3m-28 1h5m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m-31 1h1m1 0h2m2 0h1m3 0h1m6 0h4m1 0h3m-27 1h2m2 0h3m1 0h2m4 0h2m1 0h1m1 0h1m2 0h1m1 0h3m4 0h2m-33 1h1m2 0h3m3 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h4m3 0h1m-33 1h2m1 0h1m1 0h2m3 0h1m2 0h3m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m-31 1h2m2 0h1m3 0h2m1 0h4m4 0h3m2 0h1m3 0h1m-29 1h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m-33 1h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m4 0h2m-32 1h2m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-31 1h1m1 0h1m2 0h1m1 0h3m4 0h1m1 0h4m3 0h1m1 0h2m2 0h1m-32 1h7m2 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1m-31 1h2m2 0h1m1 0h2m3 0h3m1 0h1m1 0h2m4 0h3m2 0h4m-33 1h2m1 0h1m1 0h5m1 0h1m4 0h2m1 0h2m4 0h2m2 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m2 0h1m2 0h5m1 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h1m1 0h2m2 0h4m2 0h3m1 0h2m1 0h7m1 0h1m-24 1h5m2 0h1m1 0h6m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m2 0h2m3 0h3m2 0h1m1 0h1m2 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h3m1 0h2m3 0h7m-31 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m4 0h1m1 0h4m-32 1h1m1 0h3m1 0h1m11 0h1m4 0h1m1 0h1m1 0h3m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h6m2 0h2m1 0h4m1 0h2m-29 1h7m3 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h2m2 0h1" clip-path="url(#qrCenter)"/></svg>
+        </div>
+      </div>
+
+      <p style="margin-top: 1.4rem; text-align: center; font-family: var(--font-mono); font-size: 0.95rem; color: var(--fg-primary); letter-spacing: -0.01em;">
+        <a href="https://github.com/Phluxxed/t-mem" style="color: var(--fg-primary); border-bottom: 1px dotted #0a36FF;">github.com/Phluxxed/t-mem</a>
+      </p>
+
+      <p style="margin-top: 1.2rem; color: var(--fg-dim); font-size: 0.8rem; text-align: center;">
+        <span style="font-family: var(--font-mono);">arXiv:2603.10600</span>
+      </p>
+
+      <aside class="notes">
+        Land softly. "That's the whole walkthrough — paper, system, what I cut, what I'd do next. Repo's on the QR if you want to pull it apart. Open to whatever you've got — questions, pushback, war stories from your own agent setups." Then shut up and let the room drive. Don't try to seed the discussion with prepared prompts; people will have their own.
+      </aside>
+    </section>
+
+  </div>
+</div>
+
+<script src="assets/reveal/reveal.js"></script>
+<script src="assets/reveal/notes.js"></script>
+<script src="assets/hljs/highlight.min.js"></script>
+<script src="assets/hljs/python.min.js"></script>
+<script src="assets/hljs/bash.min.js"></script>
+<script src="assets/hljs/json.min.js"></script>
+<script src="assets/hljs/sql.min.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 800,
+    margin: 0.06,
+    minScale: 0.4,
+    maxScale: 1.6,
+    hash: true,
+    slideNumber: 'c/t',
+    controlsTutorial: false,
+    transition: 'fade',
+    backgroundTransition: 'none',
+    plugins: [ RevealNotes ],
+  });
+  // Highlight code blocks
+  document.querySelectorAll('pre code').forEach((el) => { hljs.highlightElement(el); });
+</script>
+
+</body>
+</html>

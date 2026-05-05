@@ -12,3 +12,9 @@ build/
 .idea/
 .vscode/
 .env
+
+# Browser-MCP cache (console logs, page snapshots)
+.playwright-mcp/
+
+# Draft slide PNGs at repo root (talk assets live in docs/talk/)
+/*.png
