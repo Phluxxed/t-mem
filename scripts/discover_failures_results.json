@@ -1,0 +1,3494 @@
+{
+  "computed_at": "2026-05-05T07:17:19.471776+00:00",
+  "config": {
+    "cutoff": "2026-03-30T00:00:00+00:00",
+    "min_turns": 5,
+    "sample_size": 43,
+    "seed": 42
+  },
+  "sessions": [
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-aside_question-7bc2eb010969fc0c.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-103b7ae7f58dce34.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-579036a2e122cecd.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-d0874168cacf4dcb.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/730e6b26-8ea4-47d6-a0e9-b88319082723/subagents/agent-acompact-4382a4c526c21566.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/a3ac55c4-2ae4-45e6-8482-5a1ebd3b67b6/subagents/agent-acompact-f7938393a9647c28.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/d4886853-2244-4fb1-8500-c8c941130d31/subagents/agent-acompact-e297502763f743f7.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-0a1428bf83bc1ccf.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/f7a44157-6ed8-4ea2-89b2-d9f637e73a71/subagents/agent-acompact-fa7e317fa3998298.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/f5802d42-987a-4122-8ea4-a877427330b0/subagents/agent-acompact-1fba3a6e3e0213a8.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/6043539e-f232-4b07-be02-18f8dc5ee7e7/subagents/agent-acompact-c7d1db0a7778289a.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-common-workspace-vb-super-awesome-python-keno-reporting/8318bbea-a2c9-4f2b-846a-013cf643d08a/subagents/agent-acompact-c4457515061f0eb8.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/8b2aeef6-dcf1-448e-9fff-c794b340f0e6/subagents/agent-acompact-4363868a774dc3d1.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/8b2aeef6-dcf1-448e-9fff-c794b340f0e6/subagents/agent-acompact-3d589e7536609d84.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/a3ac55c4-2ae4-45e6-8482-5a1ebd3b67b6/subagents/agent-acompact-5dc6f10b333a3fbc.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-loci/7d77fcbd-7253-41b9-941a-f41b175822a0/subagents/agent-acompact-feac9ef90926d86f.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/19d071ed-70f1-4e8f-9abf-64acfa401f43/subagents/agent-acompact-506428b2241cd8cd.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-03c1b7849408f71e.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-powerpoints/e6bd118f-5e42-40f1-bf7d-f1c3f649d00d/subagents/agent-acompact-b286b0e151c4d3c8.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/f4ebb323-52a8-470d-b9e9-2e7c04ed534b/subagents/agent-acompact-abca420d77d679e0.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/730e6b26-8ea4-47d6-a0e9-b88319082723/subagents/agent-acompact-b0932a3c8f582620.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-secret-squirrel/d11728a0-3d1b-49f1-9b48-b1f676dee972/subagents/agent-adc6746.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-acompact-7f82f2de463358d9.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-acompact-905808fafed7617d.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/2c3eb125-e809-42b0-9ada-0af0f8a10d86/subagents/agent-acompact-99323cb08dbc05ad.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-1b35f66cdc82c289.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/730e6b26-8ea4-47d6-a0e9-b88319082723/subagents/agent-acompact-2939e67ce6dadb9a.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-acompact-4433f0d32bb843cd.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/730e6b26-8ea4-47d6-a0e9-b88319082723/subagents/agent-acompact-35056524228fcb68.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/a3ac55c4-2ae4-45e6-8482-5a1ebd3b67b6/subagents/agent-acompact-7e2048d3d01bc46a.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-aside_question-0750af0566226c1a.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-common-workspace-vb-super-awesome-python-keno-reporting/a335f932-2f8c-404e-900b-6c397086694f/subagents/agent-acompact-73e18725229d52f3.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-8e4fcc79eaa5c8ea.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/subagents/agent-aside_question-8dcd926c953c6bea.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/2c3eb125-e809-42b0-9ada-0af0f8a10d86/subagents/agent-acompact-44c274fa2c3bb38b.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/392ca8a2-0481-42ef-a484-a78a903c31cd/subagents/agent-acompact-576d59534a7f3eb6.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-powerpoints/e6bd118f-5e42-40f1-bf7d-f1c3f649d00d/subagents/agent-acompact-ef70df9662419b06.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/182cb08a-8199-46c1-8009-cab061921fe1/subagents/agent-acompact-de3296c97f7c7ab4.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-exploration/c1fdf49b-fc06-4d4e-b77f-606237f86e84/subagents/agent-acompact-bd552a9115b2b5e6.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-powerpoints/e6bd118f-5e42-40f1-bf7d-f1c3f649d00d/subagents/agent-acompact-91fc00b3fb6603e5.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/f5802d42-987a-4122-8ea4-a877427330b0/subagents/agent-acompact-a815b4bad99d5997.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv--claude-mem-observer-sessions/f7a44157-6ed8-4ea2-89b2-d9f637e73a71/subagents/agent-acompact-c5900b06d3ab03ce.jsonl",
+    "/home/brummerv/.claude/projects/-home-brummerv-work-common-workspace-vb-super-awesome-python-keno-reporting/a335f932-2f8c-404e-900b-6c397086694f/subagents/agent-acompact-7d682408a8a25778.jsonl"
+  ],
+  "mechanical": [
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-11-demo-frontend.md"
+      ],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Write",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Read",
+          "Read"
+        ],
+        [
+          "Read",
+          "Read"
+        ],
+        [
+          "Write",
+          "Read"
+        ],
+        [
+          "Edit",
+          "Edit"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/parser/extractor.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/jcodemunch-mcp/TOKEN_SAVINGS.md",
+        "/home/brummerv/exploration/loci/tests/test_cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/tests/test_cli.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-implementation.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/pyrightconfig.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/pyrightconfig.json"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/tests/test_integration.py"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q1-narrow/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q1-narrow/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q2-crosscutting/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q2-crosscutting/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q2-crosscutting/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-4/q3-discovery/without_loci/timing.json"
+        ]
+      ],
+      "bash_repeats": [
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5",
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5",
+        "/home/brummerv/exploration/loci/.venv/bin/loci summarize ~/work/secret_squirrel | python3 -c \" import json, sys syms = j",
+        ".venv/bin/pytest tests/test_cli.py::test_outline_returns_files_with_symbols tests/test_cli.py::test_outline_symbol_has_e",
+        ".venv/bin/pytest tests/ -q 2>&1 | tail -3",
+        ".venv/bin/pytest tests/ -q 2>&1 | tail -3",
+        "loci stats --pretty && echo \"\" && loci stats --repo /home/brummerv/exploration/jcodemunch-mcp --pretty"
+      ],
+      "consec_same_tool": [
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Grep",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Edit",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Glob",
+        "Read",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Write",
+        "Write",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Edit",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-11-telemetry-analyze.md",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py"
+      ],
+      "edit_without_read": [
+        [
+          "Edit",
+          "/home/brummerv/.tmux.conf"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/specs/2026-03-11-telemetry-analyze-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-11-telemetry-analyze.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/specs/2026-03-11-auto-summarize-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/specs/2026-03-11-auto-summarize-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-11-auto-summarize.md"
+        ]
+      ],
+      "bash_repeats": [
+        "source .venv/bin/activate && loci stats --pretty 2>&1 | cat",
+        "source .venv/bin/activate && loci stats --pretty 2>&1 | cat",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -3 && loci stats --pretty 2>&1 | cat",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -5",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -5",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -5"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Agent",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Write"
+        ],
+        [
+          "Edit",
+          "Edit"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Edit",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/cli.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-09-file-grep-batch-get-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-09-file-grep-batch-get.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/pyproject.toml"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/pyproject.toml"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/src/loci/cli.py"
+        ]
+      ],
+      "bash_repeats": [
+        "source .venv/bin/activate && pytest tests/ -q --tb=short 2>&1 | tail -5"
+      ],
+      "consec_same_tool": [
+        "Glob",
+        "Bash",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Read",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Skill",
+          ""
+        ]
+      ],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Edit"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-10-evaluator-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-10-evaluator-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ]
+      ],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Write",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Glob"
+        ],
+        [
+          "Write",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Edit"
+        ],
+        [
+          "Bash",
+          "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/Dockerfile"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/cronjob.yaml"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/cronjob.yaml"
+        ]
+      ],
+      "bash_repeats": [
+        "sed 's|schedule: \"0 6 \\* \\* \\*\"|schedule: \"50 3 * * *\"|' \\ /home/brummerv/work/common_workspace/vb_super_awesome_python/",
+        "sed 's|schedule: \"0 6 \\* \\* \\*\"|schedule: \"50 3 * * *\"|' \\ /home/brummerv/work/common_workspace/vb_super_awesome_python/"
+      ],
+      "consec_same_tool": [
+        "ToolSearch",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__getConfluencePage",
+        "mcp__plugin_atlassian_atlassian__getConfluencePage",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__getConfluencePage",
+        "Bash",
+        "Bash",
+        "Glob",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/cli.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/loci/src/loci/storage/index_store.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/loci/ISSUES_LIST.md"
+        ]
+      ],
+      "bash_repeats": [
+        "pip install -e . -q --break-system-packages 2>/dev/null; loci analyze --pretty --since 15 2>/dev/null | head -20",
+        "python3 -c \" import json from pathlib import Path from collections import defaultdict base = Path.home() / '.codeindex' "
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Bash",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Read",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Edit"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md",
+        "/home/brummerv/exploration/loci/tests/parser/test_extractor.py",
+        "/home/brummerv/exploration/loci/src/loci/parser/extractor.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/src/loci/parser/extractor.py",
+        "/home/brummerv/exploration/loci/tests/test_cli.py",
+        "/home/brummerv/exploration/loci/tests/test_cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/tests/test_cli.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-10-evaluator-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-10-evaluator.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/docs/plans/2026-03-10-evaluator-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/.claude/projects/-home-brummerv-exploration/memory/MEMORY.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/tests/fixtures/sample.go"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/tests/fixtures/sample.rs"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/tests/fixtures/sample.js"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/tests/fixtures/sample.rs"
+        ]
+      ],
+      "bash_repeats": [
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -5",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -10",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -10",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -10",
+        "source .venv/bin/activate && python3 - <<'EOF' from pathlib import Path from loci.parser.extractor import parse_file sym",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -5"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Read",
+        "Read",
+        "Read",
+        "Write",
+        "Write",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Skill",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Glob"
+        ],
+        [
+          "Skill",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/.claude/skills/powerpoint/powerpoint.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/powerpoints/test-brief.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/powerpoints/test-prompt.md"
+        ]
+      ],
+      "bash_repeats": [
+        "python3 -c \" import zipfile, xml.etree.ElementTree as ET ns = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/ma",
+        "python3 -c \" import zipfile, xml.etree.ElementTree as ET ns = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/ma",
+        "python3 -c \" import zipfile, xml.etree.ElementTree as ET ns = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/ma",
+        "python3 -c \" import zipfile, xml.etree.ElementTree as ET with zipfile.ZipFile('Final Data AI Automation - Strategy Paper",
+        "python3 -c \" import zipfile, xml.etree.ElementTree as ET with zipfile.ZipFile('Final Data AI Automation - Strategy Paper"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Write"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "$FAKE_FUNCTION_TO_TRIGGER_OBSERVATION",
+          ""
+        ]
+      ],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Write",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Read"
+        ],
+        [
+          "Read",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Write",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Edit"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/work/secret_squirrel/services/player-account/package.json",
+        "/home/brummerv/.docker/config.json",
+        "/home/brummerv/work/secret_squirrel/docker-compose.yml",
+        "/home/brummerv/work/secret_squirrel/services/player-account/tests/setup.ts",
+        "/home/brummerv/work/secret_squirrel/services/player-account/tests/database.test.ts",
+        "/home/brummerv/work/secret_squirrel/services/player-account/prisma/schema.prisma"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/work/secret_squirrel/services/player-account/tests/database.test.ts"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/secret_squirrel/services/player-account/prisma/schema.prisma"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/secret_squirrel/services/player-account/.env"
+        ],
+        [
+          "Write",
+          "/home/brummerv/.docker/config.json"
+        ]
+      ],
+      "bash_repeats": [
+        "ls -la /home/brummerv/work/secret_squirrel/services/player-account/",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "\"/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe\" compose up -d 2>&1",
+        "\"/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe\" compose up -d 2>&1",
+        "docker compose up -d 2>&1",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "sleep 10 && sg docker -c \"docker compose ps\" 2>&1",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && npm test tests/database.test.ts 2>&1",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && npm test tests/database.test.ts 2>&1",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && npm test 2>&1",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && npm test tests/database.test.ts 2>&1",
+        "git add services/player-account/prisma/schema.prisma services/player-account/prisma/migrations services/player-account/t",
+        "cd /home/brummerv/work/secret_squirrel/services/player-account && npm test 2>&1"
+      ],
+      "consec_same_tool": [
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Read",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/memory/audit.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-10-backend-foundation.md"
+        ]
+      ],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Write",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-11-demo-frontend.md"
+      ],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "ToolSearch",
+        "ToolSearch"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/parser/extractor.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-implementation.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/pyrightconfig.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/pyrightconfig.json"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/tests/test_integration.py"
+        ]
+      ],
+      "bash_repeats": [
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5",
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5"
+      ],
+      "consec_same_tool": [
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Grep",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Edit",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Read",
+          "Bash"
+        ],
+        [
+          "Read",
+          "Read"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Agent"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-10-backend-foundation.md",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01UYBjGJXM3TAAAagfWdaNnR.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01UYBjGJXM3TAAAagfWdaNnR.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01UYBjGJXM3TAAAagfWdaNnR.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01UYBjGJXM3TAAAagfWdaNnR.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01UYBjGJXM3TAAAagfWdaNnR.txt",
+        "/home/brummerv/work/genbi/.worktrees/phase1-backend/backend/app/api/v1/query.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/memory/audit.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/docs/superpowers/specs/2026-03-10-backend-foundation-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-10-backend-foundation.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/genbi/.gitignore"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/genbi/.worktrees/phase1-backend/backend/tests/test_database.py"
+        ]
+      ],
+      "bash_repeats": [
+        "python -m pytest tests/ -q 2>&1 | tail -5",
+        "python -m pytest tests/ -q 2>&1 | tail -5",
+        "python -m pytest tests/ -q 2>&1 | tail -5",
+        "python -m pytest tests/ -q 2>&1 | tail -5",
+        "python -m pytest tests/ -q 2>&1 | tail -5",
+        "python -m pytest tests/ -q 2>&1 | tail -5"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Write",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Skill",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Bash",
+        "TaskUpdate",
+        "Bash",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "Bash",
+        "Bash",
+        "TaskUpdate",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "TaskUpdate",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-11-demo-frontend.md"
+      ],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Write",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Write",
+          "Read"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/work/common_workspace/.gitlab-ci.yml",
+        "/home/brummerv/work/common_workspace/.gitlab-ci.yml",
+        "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/prod-cronjob.yaml"
+      ],
+      "edit_without_read": [
+        [
+          "Edit",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/prod-cronjob.yaml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/dev-namespace.yaml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/dev-namespace.yaml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/prod-namespace.yaml"
+        ]
+      ],
+      "bash_repeats": [
+        "cd /home/brummerv/work/common_workspace && git push origin HEAD:main"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Glob",
+        "ToolSearch",
+        "Read",
+        "Read",
+        "Write",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "ToolSearch",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "mcp__plugin_atlassian_atlassian__getConfluencePage",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ],
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Read",
+          "Read"
+        ],
+        [
+          "Read",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/parser/extractor.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/jcodemunch-mcp/TOKEN_SAVINGS.md",
+        "/home/brummerv/exploration/loci/tests/test_cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/docs/plans/2026-03-09-loci-implementation.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/pyrightconfig.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/pyrightconfig.json"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/exploration/loci/tests/test_integration.py"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q1-narrow/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q1-narrow/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-1/q2-crosscutting/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-2/q2-crosscutting/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q3-discovery/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q3-discovery/with_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q2-crosscutting/without_loci/timing.json"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci-benchmark/iteration-3/q2-crosscutting/with_loci/timing.json"
+        ]
+      ],
+      "bash_repeats": [
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5",
+        ".venv/bin/pytest tests/ -q --tb=short 2>&1 | tail -5",
+        "/home/brummerv/exploration/loci/.venv/bin/loci summarize ~/work/secret_squirrel | python3 -c \" import json, sys syms = j",
+        ".venv/bin/pytest tests/test_cli.py::test_outline_returns_files_with_symbols tests/test_cli.py::test_outline_symbol_has_e"
+      ],
+      "consec_same_tool": [
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Grep",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Read",
+        "Edit",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Glob",
+        "Read",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Write",
+        "Write",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Write",
+        "Write",
+        "Write",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Read",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Read",
+          "Read"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/.claude/projects/-home-brummerv-work-genbi/8f080ba3-5d67-4675-abcb-b5bbb764c3fe/tool-results/toolu_01JJ8NvhycvYt1XV6mrr5bts.txt",
+        "/home/brummerv/work/genbi/docs/superpowers/plans/2026-03-11-demo-frontend.md"
+      ],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "TaskCreate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "TaskUpdate",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "TaskUpdate",
+        "Agent"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [
+        "python3 << 'EOF' import zipfile, re from lxml import etree PLACEHOLDER_DEFAULTS = {'\u00abslide title\u00bb', '\u00abslide content goes",
+        "ls /home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts/office/",
+        "python3 /home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts/thu",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx cd /home/bru",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "python3 -m markitdown /home/brummerv/work/powerpoints/daia-strategy-v2-2025-07.pptx 2>&1 | python3 -c \"import sys; [prin"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/cli.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py",
+        "/home/brummerv/exploration/loci/src/loci/storage/index_store.py"
+      ],
+      "edit_without_read": [
+        [
+          "Edit",
+          "/home/brummerv/.tmux.conf"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/specs/2026-03-11-telemetry-analyze-design.md"
+        ],
+        [
+          "Write",
+          "/home/brummerv/exploration/loci/docs/superpowers/plans/2026-03-11-telemetry-analyze.md"
+        ]
+      ],
+      "bash_repeats": [
+        "source .venv/bin/activate && loci stats --pretty 2>&1 | cat",
+        "source .venv/bin/activate && loci stats --pretty 2>&1 | cat",
+        "source .venv/bin/activate && pytest tests/ -q 2>&1 | tail -3 && loci stats --pretty 2>&1 | cat"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Edit",
+        "Edit",
+        "Edit",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/work/powerpoints/care-brief.md"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/work/powerpoints/care-brief.md"
+        ]
+      ],
+      "bash_repeats": [
+        "python3 << 'EOF' import zipfile, re from lxml import etree PLACEHOLDER_DEFAULTS = {'\u00abslide title\u00bb', '\u00abslide content goes",
+        "ls /home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts/office/",
+        "python3 /home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts/thu",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx cd /home/bru",
+        "cd /home/brummerv/work/powerpoints SKILLS=/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0",
+        "python3 -m markitdown /home/brummerv/work/powerpoints/daia-strategy-v2-2025-07.pptx 2>&1 | python3 -c \"import sys; [prin",
+        "python3 << 'EOF' import re from pathlib import Path slides_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_original",
+        "python3 << 'EOF' import re from pathlib import Path slides_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_original",
+        "python3 << 'EOF' import re from pathlib import Path slides_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_original",
+        "python3 << 'EOF' import re from pathlib import Path slides_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_original",
+        "python3 << 'EOF' import re from pathlib import Path slides_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_original",
+        "SCRIPTS=\"/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts\" c",
+        "python3 << 'EOF' from pathlib import Path import re rels_dir = Path(\"/home/brummerv/work/powerpoints/unpacked_v3/ppt/sli",
+        "SCRIPTS=\"/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts\" c",
+        "SCRIPTS=\"/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts\" c",
+        "SCRIPTS=\"/home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts\" p",
+        "wc -l /home/brummerv/work/powerpoints/care-brief.md",
+        "python3 /home/brummerv/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533/skills/pptx/scripts/off"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Read",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Agent",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "ToolSearch"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Skill",
+          ""
+        ]
+      ],
+      "recovery_pairs": [],
+      "same_file_rereads": [],
+      "edit_without_read": [],
+      "bash_repeats": [],
+      "consec_same_tool": [
+        "ToolSearch"
+      ],
+      "long_unrecovered_errors": []
+    },
+    {
+      "tool_errors": [
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "mcp__plugin_atlassian_atlassian__editJiraIssue",
+          ""
+        ],
+        [
+          "mcp__plugin_atlassian_atlassian__editJiraIssue",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ],
+        [
+          "Edit",
+          ""
+        ],
+        [
+          "Bash",
+          ""
+        ]
+      ],
+      "recovery_pairs": [
+        [
+          "Edit",
+          "Grep"
+        ],
+        [
+          "mcp__plugin_atlassian_atlassian__editJiraIssue",
+          "mcp__plugin_atlassian_atlassian__editJiraIssue"
+        ],
+        [
+          "mcp__plugin_atlassian_atlassian__editJiraIssue",
+          "mcp__plugin_atlassian_atlassian__editJiraIssue"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ],
+        [
+          "Edit",
+          "Read"
+        ],
+        [
+          "Bash",
+          "Bash"
+        ]
+      ],
+      "same_file_rereads": [
+        "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/cronjob.yaml",
+        "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/service-entries.yaml",
+        "/home/brummerv/work/common_workspace/.gitlab-ci.yml",
+        "/home/brummerv/work/common_workspace/.gitlab-ci.yml",
+        "/home/brummerv/work/common_workspace/.gitlab-ci.yml"
+      ],
+      "edit_without_read": [
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/dev-cronjob.yaml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/dev-service-entries.yaml"
+        ],
+        [
+          "Edit",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/k8s/prod-cronjob.yaml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/.gitlab-ci.yml"
+        ],
+        [
+          "Write",
+          "/home/brummerv/work/common_workspace/vb_super_awesome_python/keno_reporting/.gitignore"
+        ]
+      ],
+      "bash_repeats": [
+        "kubectl exec keno-reporting-test-1773283442-47cw2 -c keno-reporting -n tlc-dev-bidata-dataanalytics-common-workspace -- ",
+        "kubectl exec keno-reporting-test-1773283442-47cw2 -c keno-reporting -n tlc-dev-bidata-dataanalytics-common-workspace -- ",
+        "kubectl exec keno-reporting-test-1773283442-47cw2 -c keno-reporting -n tlc-dev-bidata-dataanalytics-common-workspace -- ",
+        "kubectl exec keno-reporting-test-1773283442-47cw2 -c keno-reporting -n tlc-dev-bidata-dataanalytics-common-workspace -- ",
+        "kubectl create job keno-reporting-test-$(date +%s) --from=cronjob/keno-reporting-daily -n tlc-dev-bidata-dataanalytics-c"
+      ],
+      "consec_same_tool": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "mcp__plugin_atlassian_atlassian__editJiraIssue",
+        "mcp__plugin_atlassian_atlassian__editJiraIssue",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__searchConfluenceUsingCql",
+        "mcp__plugin_atlassian_atlassian__getConfluencePage",
+        "Read",
+        "Edit",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit",
+        "Edit",
+        "Bash",
+        "Read",
+        "Write",
+        "Glob",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Edit"
+      ],
+      "long_unrecovered_errors": []
+    }
+  ],
+  "llm_patterns": []
+}

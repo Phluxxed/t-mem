@@ -333,8 +333,8 @@
     .diagram .box { fill: var(--bg-panel); stroke: rgba(255,255,255,0.08); }
     .diagram .arrow { stroke: var(--fg-muted); fill: none; stroke-width: 1.5; }
 
-    /* TERMINAL DEMO — animated lifecycle replay */
-    .terminal-demo { margin-top: 1.4rem; }
+    /* TERMINAL DEMO — static lifecycle replay (animation removed) */
+    .terminal-demo { margin-top: 0.7rem; }
     .term-window {
       background: #0e1014;
       border: 1px solid rgba(255,255,255,0.1);
@@ -358,16 +358,13 @@
       font-size: 0.65rem; color: var(--fg-dim); letter-spacing: 0.06em;
     }
     .term-body {
-      padding: 1.1rem 1.4rem;
-      font-size: 0.7rem;
-      line-height: 1.6;
+      padding: 0.8rem 1.1rem;
+      font-size: 0.62rem;
+      line-height: 1.45;
       color: var(--fg-primary);
-      min-height: 24rem;
     }
     .term-line {
-      opacity: 0;
-      animation: termAppear 32s linear infinite;
-      animation-delay: var(--d, 0s);
+      opacity: 1;
     }
     .term-line .prompt { color: var(--accent-teal); margin-right: 0.4em; }
     .term-line .cmd    { color: var(--fg-primary); }
@@ -384,8 +381,8 @@
     }
     .term-line.stage-marker {
       color: var(--accent-coral);
-      margin: 0.9em 0 0.5em;
-      font-size: 0.7rem;
+      margin: 0.5em 0 0.3em;
+      font-size: 0.62rem;
       letter-spacing: 0.08em;
       font-weight: 600;
     }
@@ -401,14 +398,6 @@
     .term-line .hl-teal   { color: var(--accent-teal); }
     .term-line .hl-yellow { color: var(--accent-yellow); }
     .term-line .hl-dim    { color: var(--fg-dim); }
-
-    /* fade in at the line's delay, hold visible most of the cycle, fade out at the end */
-    @keyframes termAppear {
-      0%   { opacity: 0; transform: translateY(3px); }
-      3%   { opacity: 1; transform: none; }
-      93%  { opacity: 1; }
-      98%, 100% { opacity: 0; }
-    }
 
     /* MISC */
     .footnote {
@@ -588,20 +577,20 @@
     <section class="act-divider" data-background-color="#1c1e22">
       <div class="act-num">Act 2 of 5</div>
       <h1>Why this is hard.</h1>
-      <p class="act-sub">Five things any honest learning system has to solve &mdash; and where existing approaches fall down.</p>
+      <p class="act-sub">Six things any honest learning system has to solve &mdash; and where existing approaches fall down.</p>
       <aside class="notes">
         Quick transition. "We've named the problem and we've sketched the solution shape. Before we look at how the paper actually builds it, two slides on what makes this hard — because if you don't see why naive approaches don't work, the elaborate machinery in §3 will look like over-engineering. Pause for questions before moving on."
       </aside>
     </section>
 
     <!-- ════════════════════════════════════════════════════════════════
-         SLIDE 6 — FIVE LEARNING REQUIREMENTS (Paper §2.1)
+         SLIDE 6 — SIX LEARNING REQUIREMENTS (Paper §2.2)
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
-      <div class="eyebrow-label"><span class="pill">Act 2</span> Paper §2.1 · Learning Requirements</div>
-      <h2>Five things any honest learning system needs.</h2>
+      <div class="eyebrow-label"><span class="pill">Act 2</span> Paper §2.2 · Learning Requirements</div>
+      <h2>Six things any honest learning system needs.</h2>
       <p style="color: var(--fg-muted); margin-top: -0.3rem; max-width: 64ch;">
-        Most memory systems quietly skip several of these. The paper argues you need <em>all five</em>, or you end up storing facts instead of lessons.
+        Most memory systems quietly skip several of these. The paper argues you need <em>all six</em>, or you end up storing facts instead of lessons.
       </p>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.4rem; font-size: 0.92rem;">
@@ -621,14 +610,18 @@
           <div class="label" style="color: var(--accent-coral);">4 · Step-level attribution</div>
           <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">If failure happens at step 15, the <em>cause</em> may be at step 3. The system must trace the chain.</p>
         </div>
-        <div class="card" style="border-left: 3px solid var(--accent-blue); grid-column: span 2;">
-          <div class="label" style="color: var(--accent-blue);">5 · Semantic reasoning analysis · provenance</div>
-          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">Recognise <em>why</em> an agent thought what it thought (analytical / planning / validation / reflection patterns), and keep links from each tip back to the source trajectory so the learning itself can be debugged.</p>
+        <div class="card" style="border-left: 3px solid var(--accent-coral);">
+          <div class="label" style="color: var(--accent-coral);">5 · Thought pattern recognition</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">Spot meta-cognitive behaviours — validates prerequisites, recognises errors, makes assumptions without checking. Positive and negative patterns alike.</p>
+        </div>
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <div class="label" style="color: var(--accent-blue);">6 · Semantic reasoning analysis</div>
+          <p style="margin: 0.3rem 0 0 0; color: var(--fg-muted);">Classify the reasoning modes themselves — analytical, planning, validation, reflection — so the extractor sees structure, not just surface patterns.</p>
         </div>
       </div>
 
       <aside class="notes">
-        Walk these. Slow down on #2 — recovery is the requirement most existing memory systems get wrong, because they only record outcomes, not corrective sequences. #4 is the conceptually hardest: the failing step is rarely the buggy step. #5 is the one that lets you audit the system later — "why did the agent get this guidance?" needs to be answerable. If you can't trace a tip back to a trajectory, you can't tell good guidance from bad. Q for the room: "which of these does your existing setup get wrong?"
+        Walk these. Slow down on #2 — recovery is the requirement most existing memory systems get wrong, because they only record outcomes, not corrective sequences. #4 is the conceptually hardest: the failing step is rarely the buggy step. #5 and #6 are a pair — first recognise the <em>patterns</em> an agent exhibits ("validates prerequisites" is positive, "assumes without checking" is negative), then classify the <em>reasoning modes</em> themselves (analytical, planning, validation, reflection). Slide 10 expands both. Q for the room: "which of these does your existing setup get wrong?"
       </aside>
     </section>
 
@@ -1372,83 +1365,93 @@ def decide_merge(cluster, *, model="sonnet"):
     </section>
 
     <!-- ════════════════════════════════════════════════════════════════
-         SLIDE 25 — DID IT ACTUALLY WORK? (real baseline → post-injection)
+         SLIDE 25 — DID IT ACTUALLY WORK? (methodology lesson + within-period signal)
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
       <div class="eyebrow-label"><span class="pill">Act 5</span> The honest answer</div>
       <h2>Did it actually work, on <em>my</em> machine?</h2>
-      <p style="color: var(--fg-muted); max-width: 72ch;">
-        Same metrics, same filter, same sampling on both sides &mdash; pre-injection sessions vs sessions after I turned the loop on. <strong style="color: var(--accent-coral);">One number moved, hard.</strong> The others didn't.
+
+      <p class="lede" style="font-size: 1.4rem; max-width: 56ch; margin-top: 1.0rem;">
+        I tried to A/B this against a pre-implementation baseline. The data was <strong>already gone</strong>.
       </p>
 
-      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 1.8rem; margin-top: 1.6rem;">
+      <p style="color: var(--fg-muted); margin-top: 1.0rem; max-width: 78ch; font-size: 0.95rem; line-height: 1.55;">
+        Claude Code's session retention had pruned the pre-hook JSONLs by the time I went looking. The window for clean retrofit benchmarking closed the moment the hooks went on. <strong style="color: var(--accent-coral);">If you're shipping AI tooling that affects observability — collect your baseline <em>before</em> you flip the switch.</strong> After is too late.
+      </p>
 
-        <!-- the headline metric: repeated-op rate -->
-        <div class="card" style="border-left: 3px solid var(--accent-teal); padding: 1.9rem 2.2rem;">
-          <div class="label" style="color: var(--accent-teal);">Repeated-operation rate &mdash; the optimization metric</div>
-          <div style="display: flex; align-items: baseline; gap: 1.4rem; margin: 0.9rem 0 0.7rem;">
-            <span style="font-family: var(--font-serif); font-size: 4rem; color: var(--fg-muted); line-height: 1;">36.0%</span>
-            <span style="color: var(--fg-dim); font-size: 1.6rem;">&rarr;</span>
-            <span style="font-family: var(--font-serif); font-size: 4rem; color: var(--accent-teal); line-height: 1; font-weight: 500;">11.8%</span>
-            <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-coral); margin-left: auto;">&minus;67% relative</span>
+      <h3 style="font-size: 0.95rem; color: var(--fg-muted); margin: 1.5rem 0 0.5rem; font-weight: 500;">
+        What I <em>can</em> measure: among post-hook sessions, did the ones where tips fired behave differently from the ones where nothing fired?
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.0rem; margin-top: 0.5rem;">
+
+        <div class="card strategy" style="padding: 1.3rem 1.4rem;">
+          <div class="label">Strategy</div>
+          <h3 style="font-size: 0.98rem; margin: 0.4rem 0 0.5rem; color: var(--fg-primary);">Edit-without-read rate</h3>
+          <div style="display: flex; align-items: baseline; gap: 0.55rem; margin: 0.3rem 0;">
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--fg-muted); line-height: 1;">34.4%</span>
+            <span style="color: var(--fg-dim); font-size: 0.9rem;">&rarr;</span>
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--strategy); line-height: 1; font-weight: 500;">8.2%</span>
           </div>
-          <p style="margin: 0; color: var(--fg-muted); font-size: 0.95rem; line-height: 1.5;">
-            Share of turns where the agent calls the same tool back-to-back. This is the inefficiency the paper's <em>optimization</em> tip category exists to teach away &mdash; "use <code>bulk_op</code> instead of looping <code>single_op</code>." It moved by two-thirds.
+          <p style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-coral); margin: 0.3rem 0;">&minus;76% relative</p>
+          <p style="margin: 0.5rem 0 0; color: var(--fg-muted); font-size: 0.78rem; line-height: 1.4;">
+            % of <code>Edit</code> calls hitting a file that wasn't <code>Read</code> first.
           </p>
         </div>
 
-        <!-- the flat metrics: error & recovery -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="card" style="padding: 1rem 1.2rem;">
-            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Error rate</div>
-            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">6.19%</span>
-              <span style="color: var(--fg-dim);">&rarr;</span>
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">7.77%</span>
-              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
-            </div>
+        <div class="card recovery" style="padding: 1.3rem 1.4rem;">
+          <div class="label">Recovery</div>
+          <h3 style="font-size: 0.98rem; margin: 0.4rem 0 0.5rem; color: var(--fg-primary);">Recovery rate</h3>
+          <div style="display: flex; align-items: baseline; gap: 0.55rem; margin: 0.3rem 0;">
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--fg-muted); line-height: 1;">64.9%</span>
+            <span style="color: var(--fg-dim); font-size: 0.9rem;">&rarr;</span>
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--recovery); line-height: 1; font-weight: 500;">77.8%</span>
           </div>
-          <div class="card" style="padding: 1rem 1.2rem;">
-            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Recovery rate</div>
-            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">49.8%</span>
-              <span style="color: var(--fg-dim);">&rarr;</span>
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">48.3%</span>
-              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
-            </div>
+          <p style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-coral); margin: 0.3rem 0;">+20% relative</p>
+          <p style="margin: 0.5rem 0 0; color: var(--fg-muted); font-size: 0.78rem; line-height: 1.4;">
+            % of error sequences that end in success on the same tool.
+          </p>
+        </div>
+
+        <div class="card optimization" style="padding: 1.3rem 1.4rem;">
+          <div class="label">Optimization</div>
+          <h3 style="font-size: 0.98rem; margin: 0.4rem 0 0.5rem; color: var(--fg-primary);">Same-chunk re-read rate</h3>
+          <div style="display: flex; align-items: baseline; gap: 0.55rem; margin: 0.3rem 0;">
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--fg-muted); line-height: 1;">6.9%</span>
+            <span style="color: var(--fg-dim); font-size: 0.9rem;">&rarr;</span>
+            <span style="font-family: var(--font-serif); font-size: 2.1rem; color: var(--optimization); line-height: 1; font-weight: 500;">3.8%</span>
           </div>
-          <div class="card" style="padding: 1rem 1.2rem;">
-            <div class="label" style="color: var(--fg-muted); font-size: 0.65rem;">Avg retries after error</div>
-            <div style="display: flex; align-items: baseline; gap: 0.7rem; margin-top: 0.4rem;">
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-muted);">1.47</span>
-              <span style="color: var(--fg-dim);">&rarr;</span>
-              <span style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--fg-primary);">1.86</span>
-              <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-dim); margin-left: auto;">flat</span>
-            </div>
-          </div>
+          <p style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-coral); margin: 0.3rem 0;">&minus;46% relative</p>
+          <p style="margin: 0.5rem 0 0; color: var(--fg-muted); font-size: 0.78rem; line-height: 1.4;">
+            % of <code>Read</code> calls re-fetching a chunk seen earlier this session.
+          </p>
         </div>
 
       </div>
 
-      <p style="margin-top: 1.4rem; color: var(--fg-muted); font-size: 0.95rem;">
-        The story is almost too clean: the metric tip injection <em>directly targets</em> dropped, the metrics it doesn't directly target stayed flat. That's an <strong style="color: var(--accent-coral);">internally-consistent result</strong>, not a coincidence &mdash; even though the absolute numbers are noisy.
+      <p style="margin-top: 1.0rem; color: var(--fg-primary); font-size: 0.92rem; max-width: 80ch;">
+        Each label corresponds to a paper tip category. Left number: <span style="font-family: var(--font-mono); color: var(--fg-muted);">no tip retrieved</span>. Right: <span style="font-family: var(--font-mono); color: var(--fg-primary);">tip fired</span>. <strong style="color: var(--accent-coral);">All three moved the right way.</strong>
       </p>
 
-      <p class="footnote" style="margin-top: 1.2rem;">
-        Sample: <strong style="color: var(--fg-primary);">300 pre-injection sessions</strong> (before 2026-03-30) vs <strong style="color: var(--fg-primary);">300 post-injection sessions</strong> (after). Same <code>min_turns=0</code> filter on both sides. Anecdote not proof &mdash; but a useful anecdote.
+      <p class="footnote" style="margin-top: 0.9rem; line-height: 1.55;">
+        <strong style="color: var(--fg-muted);">Sample.</strong>
+        n=12 sessions where the retriever returned nothing vs n=7 where it fired (post 2026-03-30, &ge;2 turns).
+        Tiny &mdash; anecdote, not proof.
+        <strong style="color: var(--fg-muted);">Methodology.</strong>
+        Within-period counterfactual, not before/after. The original A/B question is unanswerable from data that exists; this is the closest honest substitute.
       </p>
 
       <aside class="notes">
-        Important: the first time I ran this comparison I had asymmetric filtering &mdash; the original baseline.json was computed with no min_turns and my post-snapshot used min_turns=2. That apples-to-oranges run produced "everything looks average" numbers and a confusing story. After fixing the filter, the real result is much sharper: the paper's optimization-category metric dropped 67%, the other rates stayed flat. That's exactly the shape you'd predict if the system is doing what it's supposed to do — optimization tips reduce inefficient repetition; they don't directly fix bugs or recovery behaviour. Talking-point: this is also a lesson about benchmarking your own AI tools. Comparison filters need to match. I had to rerun this once to find the real result.
+        Walk this as a story, not a results slide. "I built it. I wanted to A/B it. I went looking for the pre-hook baseline data and it was gone &mdash; Claude Code's session retention had pruned it by the time I tried to measure. The window closed the moment I deployed." Pause. "Lesson for everyone in this room: if you're shipping observability-affecting AI tooling, plan your baseline collection BEFORE the switch, not after. I learned that the hard way and I'd rather you learn it from this slide." Pause. "What I CAN measure is the within-period counterfactual: among sessions after hooks went on, do the ones where the retriever found a match behave differently from the ones where it didn't? Tiny sample &mdash; n=12 vs n=7 once you filter to substantive sessions &mdash; but all three category-aligned metrics moved the right way. Edit-without-read &minus;76%. Recovery rate +20%. Same-chunk re-read &minus;46%. Sample is anecdote-grade. Direction is consistent. The bigger story is the methodology lesson &mdash; this slide is a case study in why retrofitting evaluation is harder than building the thing you're evaluating."
       </aside>
     </section>
 
     <!-- ════════════════════════════════════════════════════════════════
-         SLIDE 26 — A TIP'S LIFECYCLE  (animated terminal demo)
+         SLIDE 26 — A TIP'S LIFECYCLE  (static terminal demo)
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
       <div class="eyebrow-label"><span class="pill">Act 5</span> One tip's lifecycle &mdash; real corpus, real timestamps</div>
-      <h2>The loop, watched in slow motion.</h2>
+      <h2>The loop, end to end.</h2>
       <p style="color: var(--fg-muted); max-width: 70ch;">
         This is a tip that's been retrieved <strong style="color: var(--accent-coral);">175 times across 169 distinct sessions</strong> in three weeks. From discovery to reuse, with the actual log lines:
       </p>
@@ -1463,24 +1466,24 @@ def decide_merge(cluster, *, model="sonnet"):
           </div>
           <div class="term-body">
 
-            <div class="term-line stage-marker" style="--d:0s">────────  APR 1  ·  the lesson is born  ────────</div>
-            <div class="term-line narr" style="--d:1.5s">I'm wiring up a new pipeline stage. It won't connect to the upstream</div>
-            <div class="term-line narr" style="--d:2.6s">data because the field names don't match what I assumed. <span class="hl-dim">~90 minutes</span></div>
-            <div class="term-line narr" style="--d:3.7s">of debugging later, I figure out the fix. Session ends.</div>
-            <div class="term-line out" style="--d:5.4s">  <span class="hl-dim">↳ PreCompact hook fires</span> · fm extract runs in the background</div>
-            <div class="term-line out" style="--d:6.5s">  <span class="hl-dim">↳ 8 subtasks identified</span> · 4 structured tips generated · stored</div>
-            <div class="term-line out tip-source" style="--d:7.8s">     new tip · <span class="hl-teal">strategy</span> · <span class="hl-coral">high</span><br>
+            <div class="term-line stage-marker">────────  APR 1  ·  the lesson is born  ────────</div>
+            <div class="term-line narr">I'm wiring up a new pipeline stage. It won't connect to the upstream</div>
+            <div class="term-line narr">data because the field names don't match what I assumed. <span class="hl-dim">~90 minutes</span></div>
+            <div class="term-line narr">of debugging later, I figure out the fix. Session ends.</div>
+            <div class="term-line out">  <span class="hl-dim">↳ PreCompact hook fires</span> · fm extract runs in the background</div>
+            <div class="term-line out">  <span class="hl-dim">↳ 8 subtasks identified</span> · 4 structured tips generated · stored</div>
+            <div class="term-line out tip-source">     new tip · <span class="hl-teal">strategy</span> · <span class="hl-coral">high</span><br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl-yellow">"Read adjacent pipeline stages before writing new code"</span></div>
 
-            <div class="term-line stage-marker" style="--d:11s">────────  APR 20  ·  three weeks later, the lesson returns  ────────</div>
-            <div class="term-line narr" style="--d:12.5s">Different project. Different task on the surface — I want lint checks</div>
-            <div class="term-line narr" style="--d:13.6s">verified against a live pipeline. I don't remember the April 1 fix.</div>
-            <div class="term-line" style="--d:15s"><span class="prompt">›</span> <span class="cmd">claude "verify newly implemented lint checks against the live pipeline"</span></div>
-            <div class="term-line out" style="--d:16.4s">  <span class="hl-dim">↳ UserPromptSubmit hook fires</span> · before Claude reads my prompt</div>
-            <div class="term-line out" style="--d:17.5s">  <span class="hl-dim">↳ task description embedded · cosine-matched against 1,088 tips</span></div>
-            <div class="term-line out" style="--d:18.6s">  <span class="hl-dim">↳ winner @ 0.65:</span> the April 1 tip about pipeline stages</div>
+            <div class="term-line stage-marker">────────  APR 20  ·  three weeks later, the lesson returns  ────────</div>
+            <div class="term-line narr">Different project. Different task on the surface — I want lint checks</div>
+            <div class="term-line narr">verified against a live pipeline. I don't remember the April 1 fix.</div>
+            <div class="term-line"><span class="prompt">›</span> <span class="cmd">claude "verify newly implemented lint checks against the live pipeline"</span></div>
+            <div class="term-line out">  <span class="hl-dim">↳ UserPromptSubmit hook fires</span> · before Claude reads my prompt</div>
+            <div class="term-line out">  <span class="hl-dim">↳ task description embedded · cosine-matched against 1,088 tips</span></div>
+            <div class="term-line out">  <span class="hl-dim">↳ winner @ 0.65:</span> the April 1 tip about pipeline stages</div>
 
-            <div class="term-line tip-injection" style="--d:20.4s">
+            <div class="term-line tip-injection">
               <span class="hl-coral">↓</span> <span class="hl-dim">prepended to context, before reasoning starts:</span><br>
               <span class="hl-coral">[PRIORITY: HIGH]</span> <span class="hl-teal">Strategy Tip:</span><br>
               &nbsp;&nbsp;When implementing a new pipeline stage, read the adjacent upstream<br>
@@ -1489,8 +1492,8 @@ def decide_merge(cluster, *, model="sonnet"):
               &nbsp;&nbsp;<span class="hl-dim">Source:</span> session e36c96ef (Apr 1) — <span class="hl-yellow">the lesson I had to learn the hard way</span>
             </div>
 
-            <div class="term-line narr final" style="--d:25s">The agent starts with the lesson in scope. <span class="hl-coral">No re-discovery.</span></div>
-            <div class="term-line narr final" style="--d:26.2s">This is the <span class="hl-coral">169th distinct session</span> where this single tip has fired.</div>
+            <div class="term-line narr final">The agent starts with the lesson in scope. <span class="hl-coral">No re-discovery.</span></div>
+            <div class="term-line narr final">This is the <span class="hl-coral">169th distinct session</span> where this single tip has fired.</div>
 
           </div>
         </div>

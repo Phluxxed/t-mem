@@ -742,8 +742,9 @@ _INJECTION_START = "2026-03-29"
 @main.command()
 @click.option("--before", default=_INJECTION_START, help="Cutoff date (YYYY-MM-DD). Sessions before this are treated as pre-injection.")
 @click.option("--sample", default=500, help="Max sessions to sample (0 = all).")
+@click.option("--min-turns", default=0, help="Exclude sessions shorter than this many turns. Match this with `fm compare --min-turns` for symmetric filtering.")
 @click.option("--output", type=click.Path(path_type=Path), default=_DEFAULT_BASELINE, help="Where to save the snapshot JSON.")
-def baseline(before: str, sample: int, output: Path) -> None:
+def baseline(before: str, sample: int, min_turns: int, output: Path) -> None:
     """Capture a baseline metrics snapshot from pre-injection sessions."""
     try:
         cutoff = datetime.strptime(before, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -751,10 +752,10 @@ def baseline(before: str, sample: int, output: Path) -> None:
         click.echo(f"Invalid --before date '{before}'. Use YYYY-MM-DD format.", err=True)
         return
 
-    click.echo(f"Computing baseline from sessions before {before} (sample={sample or 'all'})...")
+    click.echo(f"Computing baseline from sessions before {before} (sample={sample or 'all'}, min-turns={min_turns})...")
 
     try:
-        snapshot = compute_baseline(before=cutoff, sample=sample)
+        snapshot = compute_baseline(before=cutoff, sample=sample, min_turns=min_turns)
     except ValueError as e:
         click.echo(f"Error: {e}", err=True)
         return
@@ -775,12 +776,14 @@ def baseline(before: str, sample: int, output: Path) -> None:
 
 
 _COMPARISON_METRICS: list[tuple[str, str, str, int]] = [
-    ("Error rate",        "error_rate",              "percent", -1),
-    ("Recovery rate",     "recovery_rate",           "percent", +1),
-    ("Avg retries/error", "avg_retries_after_error", "float",   -1),
-    ("Avg actions/turn",  "avg_actions_per_turn",    "float",   -1),
-    ("Repeated op rate",  "repeated_op_rate",        "percent", -1),
-    ("Avg turns/session", "avg_turns_per_session",   "float",    0),
+    ("Error rate",            "error_rate",              "percent", -1),
+    ("Recovery rate",         "recovery_rate",           "percent", +1),
+    ("Avg retries/error",     "avg_retries_after_error", "float",   -1),
+    ("Avg actions/turn",      "avg_actions_per_turn",    "float",   -1),
+    ("Repeated op rate",      "repeated_op_rate",        "percent", -1),
+    ("Same-file re-read rate","same_file_reread_rate",   "percent", -1),
+    ("Edit-without-read rate","edit_without_read_rate",  "percent", -1),
+    ("Avg turns/session",     "avg_turns_per_session",   "float",    0),
 ]
 
 

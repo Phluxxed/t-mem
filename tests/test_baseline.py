@@ -32,9 +32,12 @@ class TestComputeBaseline:
         sessions_dir = tmp_path / "projects" / "proj1"
         sessions_dir.mkdir(parents=True)
 
+        # Pre-cutoff timestamps: turn-level filter requires Turn.timestamp to
+        # be set; cutoff in this test is 2026-03-29.
         turns = [
             Turn(
                 user_prompt="do a thing",
+                timestamp="2026-01-01T00:00:00Z",
                 actions=[
                     Action(tool_name="Bash", tool_input={}, success=True),
                     Action(tool_name="Read", tool_input={}, success=False),
@@ -43,6 +46,7 @@ class TestComputeBaseline:
             ),
             Turn(
                 user_prompt="do another thing",
+                timestamp="2026-01-01T00:01:00Z",
                 actions=[
                     Action(tool_name="Bash", tool_input={}, success=True),
                 ],
@@ -92,7 +96,11 @@ class TestComputeBaseline:
         old_mtime = datetime(2026, 1, 1, tzinfo=timezone.utc).timestamp()
         os.utime(session_file, (old_mtime, old_mtime))
 
-        turns = [Turn(user_prompt="x", actions=[Action(tool_name="Bash", tool_input={}, success=True)])]
+        turns = [Turn(
+            user_prompt="x",
+            timestamp="2026-01-01T00:00:00Z",
+            actions=[Action(tool_name="Bash", tool_input={}, success=True)],
+        )]
         cutoff = datetime(2026, 3, 29, tzinfo=timezone.utc)
 
         with patch("fm.baseline.parse_session", return_value=turns):
