@@ -1550,6 +1550,29 @@ def decide_merge(cluster, *, model="sonnet"):
     </section>
 
     <!-- ════════════════════════════════════════════════════════════════
+         SLIDE 28 — SUMMARY / TAKEAWAYS
+         ════════════════════════════════════════════════════════════════ -->
+    <section data-background-color="#1c1e22">
+      <div class="eyebrow-label"><span class="pill">Summary</span> What to take away</div>
+      <h2>The paper. And the bigger point.</h2>
+
+      <div class="two-col top" style="margin-top: 2rem;">
+        <div>
+          <p class="lede" style="font-size: 1.05rem;">
+            The paper proposes a loop: inspect what an agent did, extract the lessons, generalise them into transferable tips, and inject them into the agent's context where relevant. Implementation is a hook that fires before your prompt, a pipeline that runs after your session, and a vector store in between.
+          </p>
+        </div>
+        <div class="pull">
+          The implementation is a good idea. But the <em>real</em> insight is simpler: <strong>any structured knowledge can be injected into an agent's context before it starts thinking.</strong> You don't need this pipeline to use that idea &mdash; you just need to know it's possible.
+        </div>
+      </div>
+
+      <aside class="notes">
+        Two beats here. First beat: summarise the paper in one breath — watch, extract, generalise, retrieve, inject. That's the loop. Second beat: zoom out. The implementation is the worked example, not the point. The point is that context injection is a first-class technique for steering agent behaviour without touching the model. Anyone in this room can go home and inject a flat text file into their agent's context tomorrow. Start there. The pipeline is just the part that makes it dynamic and self-maintaining.
+      </aside>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
          SLIDE 26 — THANKS / REPO QR
          ════════════════════════════════════════════════════════════════ -->
     <section data-background-color="#1c1e22">
